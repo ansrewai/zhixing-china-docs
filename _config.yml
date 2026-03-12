@@ -1,0 +1,64 @@
+# GitHub Pages 配置
+title: 知行中国项目文档中心
+description: 脑健康志愿者培训平台 - 项目进展与文档汇总
+baseurl: "" # 子目录路径，如果部署在子目录下
+url: "https://yourusername.github.io" # 你的GitHub Pages地址
+
+# 构建设置
+markdown: kramdown
+highlighter: rouge
+permalink: pretty
+
+# 主题设置（使用GitHub Pages默认主题）
+theme: jekyll-theme-cayman
+
+# 插件
+plugins:
+  - jekyll-feed
+  - jekyll-seo-tag
+  - jekyll-sitemap
+
+# 排除文件
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - node_modules
+  - vendor/bundle/
+  - vendor/cache/
+  - vendor/gems/
+  - vendor/ruby/
+
+# 包含文件
+include:
+  - _pages
+  - .nojekyll
+
+# 作者信息
+author:
+  name: 小青工作助手
+  email: ""
+  twitter: ""
+  github: ""
+
+# 社交链接
+social:
+  name: 知行中国
+  links:
+    - https://github.com/yourusername/zhixing-china-docs
+
+# 默认值
+defaults:
+  - scope:
+      path: ""
+      type: "pages"
+    values:
+      layout: "default"
+  - scope:
+      path: ""
+      type: "posts"
+    values:
+      layout: "post"
+  - scope:
+      path: ""
+    values:
+      comments: true
