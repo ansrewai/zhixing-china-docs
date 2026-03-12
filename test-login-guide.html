@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登录系统测试指南</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        .step { margin: 25px 0; padding: 20px; border-left: 4px solid #4f46e5; background: #f8fafc; }
+        .step-number { background: #4f46e5; color: white; width: 30px; height: 30px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; margin-right: 10px; }
+        .credentials { background: #dbeafe; padding: 15px; border-radius: 8px; margin: 15px 0; }
+        .test-btn { background: #10b981; color: white; padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; }
+        .test-btn:hover { background: #059669; }
+        .url { background: #f1f5f9; padding: 8px 12px; border-radius: 4px; font-family: monospace; margin: 5px 0; }
+    </style>
+</head>
+<body>
+    <h1>🔐 知行中国文档网站登录系统测试指南</h1>
+    <p>测试时间: <span id="time"></span></p>
+    
+    <div class="step">
+        <h3><span class="step-number">1</span> 登录凭证</h3>
+        <div class="credentials">
+            <p><strong>用户名:</strong> <code>Andrew</code></p>
+            <p><strong>密码:</strong> <code>zhixingzhongguo</code></p>
+            <p><em>注意: 密码区分大小写</em></p>
+        </div>
+    </div>
+    
+    <div class="step">
+        <h3><span class="step-number">2</span> 测试登录页面</h3>
+        <p>点击下方按钮测试登录页面:</p>
+        <button class="test-btn" onclick="window.open('login.html', '_blank')">
+            打开登录页面
+        </button>
+        <p>或直接访问: <span class="url">https://ansrewai.github.io/zhixing-china-docs/login.html</span></p>
+    </div>
+    
+    <div class="step">
+        <h3><span class="step-number">3</span> 测试主页面保护</h3>
+        <p>点击下方按钮测试主页面（应自动重定向到登录页）:</p>
+        <button class="test-btn" onclick="window.open('index.html', '_blank')">
+            测试主页面访问
+        </button>
+        <p>或直接访问: <span class="url">https://ansrewai.github.io/zhixing-china-docs/</span></p>
+        <p><em>预期行为: 未登录时自动跳转到登录页面</em></p>
+    </div>
+    
+    <div class="step">
+        <h3><span class="step-number">4</span> 完整测试流程</h3>
+        <ol>
+            <li>访问 <a href="https://ansrewai.github.io/zhixing-china-docs/" target="_blank">主页面</a></li>
+            <li>应自动跳转到登录页面</li>
+            <li>输入用户名: <code>Andrew</code></li>
+            <li>输入密码: <code>zhixingzhongguo</code></li>
+            <li>可选: 勾选"记住登录状态"</li>
+            <li>点击"登录"按钮</li>
+            <li>应成功跳转到主页面，显示"欢迎，Andrew"</li>
+            <li>测试格式切换、搜索等功能是否正常</li>
+            <li>点击"退出"按钮应返回登录页面</li>
+        </ol>
+    </div>
+    
+    <div class="step">
+        <h3><span class="step-number">5</span> 功能验证清单</h3>
+        <ul>
+            <li>✅ 登录页面UI美观专业</li>
+            <li>✅ 用户名/密码验证正确</li>
+            <li>✅ 记住登录状态功能</li>
+            <li>✅ 主页面访问保护</li>
+            <li>✅ 未登录自动重定向</li>
+            <li>✅ 登录后显示用户信息</li>
+            <li>✅ 安全退出功能</li>
+            <li>✅ 原有优化功能保持（格式切换、搜索等）</li>
+        </ul>
+    </div>
+    
+    <div class="step">
+        <h3><span class="step-number">6</span> 技术信息</h3>
+        <ul>
+            <li><strong>部署状态:</strong> 已推送到GitHub Pages</li>
+            <li><strong>Git提交:</strong> <code>839b6ca</code> - 添加登录系统</li>
+            <li><strong>安全机制:</strong> localStorage + cookie双重验证</li>
+            <li><strong>会话有效期:</strong> 7天（记住登录状态）或浏览器会话</li>
+            <li><strong>前端框架:</strong> Tailwind CSS + 纯JavaScript</li>
+        </ul>
+    </div>
+    
+    <div class="step">
+        <h3><span class="step-number">7</span> 问题排查</h3>
+        <p>如果遇到问题:</p>
+        <ol>
+            <li><strong>无法登录:</strong> 检查用户名/密码是否正确，注意大小写</li>
+            <li><strong>页面不跳转:</strong> 清除浏览器缓存或使用隐私模式</li>
+            <li><strong>GitHub Pages未更新:</strong> 等待1-3分钟缓存刷新</li>
+            <li><strong>功能异常:</strong> 按F12打开开发者工具查看控制台错误</li>
+        </ol>
+        <p>如需帮助，请提供具体错误信息。</p>
+    </div>
+    
+    <script>
+        document.getElementById('time').textContent = new Date().toLocaleString('zh-CN');
+    </script>
+</body>
+</html>

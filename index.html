@@ -3,117 +3,81 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>知行中国项目文档 - 优化版</title>
-    <!-- Tailwind CSS CDN -->
+    <title>知行中国项目文档中心</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Highlight.js for code highlighting -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/markdown.min.js"></script>
     <style>
-        /* Custom styles */
-        .format-btn.active {
-            background-color: #3b82f6;
-            color: white;
-        }
         .doc-card {
             transition: all 0.3s ease;
+            border-left: 4px solid transparent;
         }
         .doc-card:hover {
             transform: translateY(-4px);
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            border-left-color: #3b82f6;
         }
-        .markdown-content pre {
-            background-color: #1e293b;
-            color: #e2e8f0;
-            padding: 1rem;
-            border-radius: 0.5rem;
-            overflow-x: auto;
-        }
-        .markdown-content code {
-            background-color: #f1f5f9;
-            padding: 0.2rem 0.4rem;
+        .category-badge {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
             border-radius: 0.25rem;
-            font-family: 'Courier New', monospace;
         }
-        .sidebar {
-            position: sticky;
-            top: 2rem;
-            height: calc(100vh - 4rem);
-            overflow-y: auto;
-        }
-        .search-highlight {
-            background-color: #fef3c7;
-            padding: 0.1rem 0.2rem;
-            border-radius: 0.2rem;
-        }
+        .category-core { background-color: #dbeafe; color: #1e40af; }
+        .category-analysis { background-color: #fef3c7; color: #92400e; }
+        .category-plan { background-color: #dcfce7; color: #166534; }
+        .category-tech { background-color: #f3e8ff; color: #6b21a8; }
     </style>
-    <!-- 登录检查脚本 -->
+    <!-- 登录检查 -->
     <script>
-        // 登录状态检查
         function checkLogin() {
             const loginData = localStorage.getItem('zhixing_login');
             const hasCookie = document.cookie.split(';').some(cookie => 
                 cookie.trim().startsWith('zhixing_auth=')
             );
-            
-            // 如果未登录，重定向到登录页
             if (!loginData && !hasCookie) {
                 window.location.href = 'login.html';
                 return false;
             }
-            
-            // 验证登录数据
             if (loginData) {
                 try {
                     const data = JSON.parse(loginData);
                     const now = new Date().getTime();
                     const sevenDays = 7 * 24 * 60 * 60 * 1000;
-                    
                     if (data.remember && (now - data.timestamp) > sevenDays) {
-                        // 记住登录已过期
                         localStorage.removeItem('zhixing_login');
                         window.location.href = 'login.html';
                         return false;
                     }
                 } catch (e) {
-                    // 数据无效
                     localStorage.removeItem('zhixing_login');
                     window.location.href = 'login.html';
                     return false;
                 }
             }
-            
             return true;
         }
         
-        // 页面加载时检查登录
         if (!checkLogin()) {
-            // 已重定向，停止执行
             throw new Error('未登录，重定向中...');
         }
         
-        // 登录用户信息显示
+        // 显示用户信息
         function displayUserInfo() {
             const loginData = localStorage.getItem('zhixing_login');
             if (loginData) {
                 try {
                     const data = JSON.parse(loginData);
                     const userInfoDiv = document.createElement('div');
-                    userInfoDiv.className = 'flex items-center space-x-2 text-white';
+                    userInfoDiv.className = 'flex items-center space-x-2';
                     userInfoDiv.innerHTML = `
-                        <span class="text-sm">欢迎，${data.username}</span>
+                        <span class="text-sm text-gray-700">欢迎，${data.username}</span>
                         <button id="logout-btn" class="bg-red-500 hover:bg-red-600 text-white text-xs px-2 py-1 rounded transition-colors">
                             退出
                         </button>
                     `;
                     
-                    // 添加到导航栏
-                    const nav = document.querySelector('nav .container .flex:last-child');
+                    const nav = document.querySelector('nav .flex:last-child');
                     if (nav) {
                         nav.appendChild(userInfoDiv);
-                        
-                        // 添加退出功能
                         document.getElementById('logout-btn').addEventListener('click', function() {
                             localStorage.removeItem('zhixing_login');
                             document.cookie = 'zhixing_auth=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
@@ -126,45 +90,31 @@
             }
         }
         
-        // DOM加载完成后显示用户信息
         document.addEventListener('DOMContentLoaded', displayUserInfo);
     </script>
 </head>
 <body class="bg-gray-50 min-h-screen">
-    <!-- Navigation -->
-    <nav class="bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg">
-        <div class="container mx-auto px-4 py-3">
+    <!-- 导航栏 -->
+    <nav class="bg-white shadow-lg border-b">
+        <div class="container mx-auto px-4 py-4">
             <div class="flex flex-col md:flex-row justify-between items-center">
                 <div class="flex items-center space-x-3 mb-4 md:mb-0">
-                    <div class="bg-white p-2 rounded-lg">
+                    <div class="bg-blue-100 p-2 rounded-lg">
                         <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                         </svg>
                     </div>
                     <div>
-                        <h1 class="text-2xl font-bold">知行中国项目文档中心</h1>
-                        <p class="text-blue-100 text-sm">脑健康志愿者培训平台 - 优化阅读体验</p>
+                        <h1 class="text-2xl font-bold text-gray-800">知行中国项目文档中心</h1>
+                        <p class="text-gray-600 text-sm">脑健康志愿者培训平台 - 安全文档管理系统</p>
                     </div>
                 </div>
                 
-                <div class="flex flex-wrap items-center space-x-4">
-                    <!-- Format Switcher -->
-                    <div class="flex bg-white rounded-lg p-1 mb-2 md:mb-0">
-                        <button id="format-web" class="format-btn active px-3 py-1 rounded-md text-sm font-medium transition-colors" data-format="web">
-                            🌐 网页格式
-                        </button>
-                        <button id="format-markdown" class="format-btn px-3 py-1 rounded-md text-sm font-medium transition-colors" data-format="markdown">
-                            📝 Markdown格式
-                        </button>
-                        <button id="format-raw" class="format-btn px-3 py-1 rounded-md text-sm font-medium transition-colors" data-format="raw">
-                            📄 原始文本
-                        </button>
-                    </div>
-                    
-                    <!-- Search Box -->
+                <div class="flex items-center space-x-4">
+                    <!-- 搜索框 -->
                     <div class="relative">
                         <input type="text" id="search-input" placeholder="搜索文档..." 
-                               class="pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-800 w-full md:w-64">
+                               class="pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-800 w-64">
                         <svg class="absolute left-3 top-2.5 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                         </svg>
@@ -174,726 +124,298 @@
         </div>
     </nav>
 
-    <!-- Main Content -->
+    <!-- 主内容 -->
     <div class="container mx-auto px-4 py-8">
-        <div class="flex flex-col lg:flex-row gap-8">
-            <!-- Sidebar -->
-            <div class="lg:w-1/4">
-                <div class="sidebar bg-white rounded-xl shadow-lg p-6">
-                    <h2 class="text-xl font-bold text-gray-800 mb-4">📚 文档分类</h2>
-                    
-                    <div class="space-y-2 mb-6">
-                        <button class="category-btn w-full text-left px-4 py-2 rounded-lg hover:bg-blue-50 transition-colors font-medium text-gray-700" data-category="all">
-                            📋 全部文档 (11)
-                        </button>
-                        <button class="category-btn w-full text-left px-4 py-2 rounded-lg hover:bg-blue-50 transition-colors text-gray-600" data-category="core">
-                            🎯 核心项目文档 (4)
-                        </button>
-                        <button class="category-btn w-full text-left px-4 py-2 rounded-lg hover:bg-blue-50 transition-colors text-gray-600" data-category="analysis">
-                            🔍 竞品分析与研究 (4)
-                        </button>
-                        <button class="category-btn w-full text-left px-4 py-2 rounded-lg hover:bg-blue-50 transition-colors text-gray-600" data-category="execution">
-                            🚀 项目执行与结构 (2)
-                        </button>
-                        <button class="category-btn w-full text-left px-4 py-2 rounded-lg hover:bg-blue-50 transition-colors text-gray-600" data-category="technical">
-                            💻 技术配置 (1)
-                        </button>
-                    </div>
-                    
-                    <div class="border-t pt-6">
-                        <h3 class="font-bold text-gray-800 mb-3">🏷️ 筛选标签</h3>
-                        <div class="flex flex-wrap gap-2">
-                            <span class="tag-filter cursor-pointer px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm hover:bg-green-200" data-tag="已完成">已完成</span>
-                            <span class="tag-filter cursor-pointer px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm hover:bg-yellow-200" data-tag="进行中">进行中</span>
-                            <span class="tag-filter cursor-pointer px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm hover:bg-blue-200" data-tag="核心文档">核心文档</span>
-                            <span class="tag-filter cursor-pointer px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm hover:bg-purple-200" data-tag="分析报告">分析报告</span>
-                            <span class="tag-filter cursor-pointer px-3 py-1 bg-red-100 text-red-800 rounded-full text-sm hover:bg-red-200" data-tag="技术文档">技术文档</span>
-                        </div>
-                    </div>
-                    
-                    <div class="border-t pt-6 mt-6">
-                        <h3 class="font-bold text-gray-800 mb-3">📊 统计信息</h3>
-                        <div class="space-y-2 text-sm text-gray-600">
-                            <div class="flex justify-between">
-                                <span>总文档数:</span>
-                                <span class="font-bold">11</span>
-                            </div>
-                            <div class="flex justify-between">
-                                <span>总字数:</span>
-                                <span class="font-bold">~22,000</span>
-                            </div>
-                            <div class="flex justify-between">
-                                <span>今日产出:</span>
-                                <span class="font-bold">7份文档</span>
-                            </div>
-                            <div class="flex justify-between">
-                                <span>最后更新:</span>
-                                <span class="font-bold" id="last-update-time">刚刚</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+        <!-- 欢迎信息 -->
+        <div class="mb-8 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-100">
+            <h2 class="text-2xl font-bold text-gray-800 mb-2">欢迎使用知行中国文档系统</h2>
+            <p class="text-gray-600">这里汇集了项目的所有核心文档、分析报告和实施计划。点击文档卡片进入阅读页面，支持多种格式切换。</p>
+        </div>
+        
+        <!-- 文档分类 -->
+        <div class="mb-6">
+            <h3 class="text-xl font-bold text-gray-800 mb-4">文档分类</h3>
+            <div class="flex flex-wrap gap-2">
+                <button class="category-filter px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium" data-category="all">全部文档</button>
+                <button class="category-filter px-3 py-1 bg-gray-100 text-gray-800 rounded-full text-sm font-medium" data-category="core">核心文档</button>
+                <button class="category-filter px-3 py-1 bg-gray-100 text-gray-800 rounded-full text-sm font-medium" data-category="analysis">竞品分析</button>
+                <button class="category-filter px-3 py-1 bg-gray-100 text-gray-800 rounded-full text-sm font-medium" data-category="plan">实施计划</button>
+                <button class="category-filter px-3 py-1 bg-gray-100 text-gray-800 rounded-full text-sm font-medium" data-category="tech">技术文档</button>
             </div>
-
-            <!-- Document Grid -->
-            <div class="lg:w-3/4">
-                <!-- Stats Banner -->
-                <div class="bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-xl shadow-lg p-6 mb-8">
-                    <div class="flex flex-col md:flex-row justify-between items-center">
-                        <div>
-                            <h2 class="text-2xl font-bold mb-2">今日工作成果</h2>
-                            <p class="text-blue-100">从项目分析到在线部署，高效完成全流程工作</p>
-                        </div>
-                        <div class="flex space-x-6 mt-4 md:mt-0">
-                            <div class="text-center">
-                                <div class="text-3xl font-bold">7</div>
-                                <div class="text-sm">核心文档</div>
-                            </div>
-                            <div class="text-center">
-                                <div class="text-3xl font-bold">22K</div>
-                                <div class="text-sm">总字数</div>
-                            </div>
-                            <div class="text-center">
-                                <div class="text-3xl font-bold">3</div>
-                                <div class="text-sm">小时工作</div>
-                            </div>
-                            <div class="text-center">
-                                <div class="text-3xl font-bold">100%</div>
-                                <div class="text-sm">完成率</div>
-                            </div>
-                        </div>
-                    </div>
+        </div>
+        
+        <!-- 文档列表 -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- 文档卡片将通过JavaScript动态生成 -->
+        </div>
+        
+        <!-- 使用说明 -->
+        <div class="mt-12 p-6 bg-gray-50 rounded-xl border">
+            <h3 class="text-lg font-bold text-gray-800 mb-3">📖 使用说明</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="p-4 bg-white rounded-lg border">
+                    <div class="text-blue-600 font-bold mb-2">1. 选择文档</div>
+                    <p class="text-gray-600 text-sm">点击文档卡片进入阅读页面</p>
                 </div>
-
-                <!-- Document Cards -->
-                <div id="document-grid" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <!-- Documents will be loaded here dynamically -->
+                <div class="p-4 bg-white rounded-lg border">
+                    <div class="text-blue-600 font-bold mb-2">2. 格式切换</div>
+                    <p class="text-gray-600 text-sm">在文档页面切换网页/Markdown/原始文本格式</p>
                 </div>
-
-                <!-- Document Viewer Modal -->
-                <div id="document-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 overflow-y-auto">
-                    <div class="min-h-screen flex items-center justify-center p-4">
-                        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-6xl max-h-[90vh] overflow-hidden">
-                            <!-- Modal Header -->
-                            <div class="flex justify-between items-center border-b p-6">
-                                <div>
-                                    <h3 id="modal-title" class="text-2xl font-bold text-gray-800"></h3>
-                                    <div id="modal-meta" class="text-gray-600 text-sm mt-1"></div>
-                                </div>
-                                <div class="flex items-center space-x-3">
-                                    <!-- Format switcher in modal -->
-                                    <div class="flex bg-gray-100 rounded-lg p-1">
-                                        <button class="modal-format-btn active px-3 py-1 rounded-md text-sm font-medium bg-white shadow" data-format="web">
-                                            网页
-                                        </button>
-                                        <button class="modal-format-btn px-3 py-1 rounded-md text-sm font-medium" data-format="markdown">
-                                            MD
-                                        </button>
-                                        <button class="modal-format-btn px-3 py-1 rounded-md text-sm font-medium" data-format="raw">
-                                            原始
-                                        </button>
-                                    </div>
-                                    <button id="close-modal" class="text-gray-500 hover:text-gray-700">
-                                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                                        </svg>
-                                    </button>
-                                </div>
-                            </div>
-                            
-                            <!-- Modal Content -->
-                            <div class="p-6 overflow-y-auto max-h-[60vh]">
-                                <div id="modal-content" class="prose max-w-none">
-                                    <!-- Content will be loaded here -->
-                                </div>
-                            </div>
-                            
-                            <!-- Modal Footer -->
-                            <div class="border-t p-6 flex justify-between items-center">
-                                <div class="text-sm text-gray-600">
-                                    <span id="char-count">0</span> 字符 | 
-                                    <span id="word-count">0</span> 单词 |
-                                    <span id="reading-time">0</span> 分钟阅读
-                                </div>
-                                <div class="flex space-x-3">
-                                    <button id="download-btn" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-                                        下载文档
-                                    </button>
-                                    <button id="copy-btn" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-                                        复制内容
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                <div class="p-4 bg-white rounded-lg border">
+                    <div class="text-blue-600 font-bold mb-2">3. 安全退出</div>
+                    <p class="text-gray-600 text-sm">点击右上角"退出"按钮安全登出系统</p>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Footer -->
-    <footer class="bg-gray-800 text-white py-8 mt-12">
-        <div class="container mx-auto px-4">
-            <div class="flex flex-col md:flex-row justify-between items-center">
-                <div class="mb-6 md:mb-0">
-                    <h3 class="text-xl font-bold mb-2">知行中国项目文档中心</h3>
-                    <p class="text-gray-400">由小青工作助手生成和维护 | 最后更新: <span id="footer-update-time"></span></p>
-                </div>
-                <div class="flex space-x-6">
-                    <a href="https://ansrewai.github.io/zhixing-china-docs/" class="text-gray-400 hover:text-white transition-colors">
-                        GitHub Pages
-                    </a>
-                    <a href="#" class="text-gray-400 hover:text-white transition-colors">
-                        项目仓库
-                    </a>
-                    <a href="#" class="text-gray-400 hover:text-white transition-colors">
-                        使用指南
-                    </a>
-                </div>
-            </div>
-        </div>
-    </footer>
-
-    <!-- JavaScript -->
     <script>
-        // Document data
+        // 文档数据
         const documents = [
-            {
-                id: 1,
-                title: "项目详细分析报告",
-                description: "基于原始PPT的深度分析，理解项目全貌和社会企业模式",
-                category: "core",
-                tags: ["已完成", "核心文档", "分析报告"],
-                path: "文档/知行中国_2026脑健康管理平台_详细分析.md",
-                wordCount: "2362字",
-                time: "16:45",
-                icon: "📋"
+            { 
+                id: '项目总览_README.md', 
+                title: '项目总览：知行中国脑健康志愿者培训平台',
+                description: '项目整体介绍、愿景、技术栈、里程碑、团队架构和预算规划',
+                category: 'core',
+                date: '2026-03-12',
+                size: '5.4KB'
             },
-            {
-                id: 2,
-                title: "MVP功能架构设计",
-                description: "三端架构设计：志愿者端、专家端、管理端完整功能规划",
-                category: "core",
-                tags: ["已完成", "核心文档", "技术文档"],
-                path: "文档/知行中国_志愿者培训MVP_功能架构设计.md",
-                wordCount: "4302字",
-                time: "16:55",
-                icon: "🎯"
+            { 
+                id: '知行中国_2026脑健康管理平台_分析报告.md', 
+                title: '2026脑健康管理平台分析报告',
+                description: '知行中国项目核心分析报告，包含市场分析、用户需求、商业模式等',
+                category: 'core',
+                date: '2026-01-31',
+                size: '2.1KB'
             },
-            {
-                id: 3,
-                title: "详细实施计划",
-                description: "12周开发路线图，4个阶段，清晰里程碑和交付物定义",
-                category: "core",
-                tags: ["已完成", "核心文档"],
-                path: "文档/知行中国_志愿者培训MVP_详细实施计划.md",
-                wordCount: "4767字",
-                time: "17:30",
-                icon: "📅"
+            { 
+                id: '知行中国_2026脑健康管理平台_详细分析.md', 
+                title: '2026脑健康管理平台详细分析',
+                description: '项目详细分析，包含技术架构、运营模式、风险评估等',
+                category: 'core',
+                date: '2026-01-31',
+                size: '4.7KB'
             },
-            {
-                id: 4,
-                title: "技能安装计划",
-                description: "项目所需工具和技能安装配置计划，优先级排序",
-                category: "core",
-                tags: ["已完成", "技术文档"],
-                path: "文档/知行中国_技能安装计划.md",
-                wordCount: "3086字",
-                time: "17:04",
-                icon: "🛠️"
+            { 
+                id: '知行中国_志愿者培训MVP_功能架构设计.md', 
+                title: '志愿者培训MVP功能架构设计',
+                description: '志愿者培训平台的三端架构设计，包含移动端、Web端、后台管理',
+                category: 'tech',
+                date: '2026-03-12',
+                size: '8.7KB'
             },
-            {
-                id: 5,
-                title: "竞品分析与经验总结",
-                description: "基于语音指示，研究同类项目成功失败经验，整合到方案",
-                category: "analysis",
-                tags: ["已完成", "分析报告"],
-                path: "文档/知行中国_竞品分析与经验总结.md",
-                wordCount: "3469字",
-                time: "19:05",
-                icon: "🔍"
+            { 
+                id: '知行中国_志愿者培训MVP_详细实施计划.md', 
+                title: '志愿者培训MVP详细实施计划',
+                description: '12周详细实施计划，包含团队分工、里程碑、预算规划',
+                category: 'plan',
+                date: '2026-03-12',
+                size: '8.9KB'
             },
-            {
-                id: 6,
-                title: "飞书互联网医疗深度分析",
-                description: "45页PPT深度分析，提炼成功经验和需避免的陷阱",
-                category: "analysis",
-                tags: ["已完成", "分析报告"],
-                path: "文档/飞书互联网医疗解决方案_深度分析.md",
-                wordCount: "3783字",
-                time: "19:12",
-                icon: "📊"
+            { 
+                id: '知行中国_技能安装计划.md', 
+                title: '技能安装计划',
+                description: '项目开发所需技能和工具的安装配置计划',
+                category: 'tech',
+                date: '2026-03-12',
+                size: '5.1KB'
             },
-            {
-                id: 7,
-                title: "原始项目PPT",
-                description: "知行中国：2026脑健康管理平台原始演示文稿",
-                category: "analysis",
-                tags: ["已完成"],
-                path: "文档/知行中国_2026脑健康管理平台---683764e2-4fd5-4c98-8db0-bebef18084aa.pptx",
-                wordCount: "9页PPT",
-                time: "16:37",
-                icon: "📄",
-                isPPT: true
+            { 
+                id: '知行中国_竞品分析与经验总结.md', 
+                title: '竞品分析与经验总结',
+                description: '同类项目成功失败经验分析，为项目决策提供参考',
+                category: 'analysis',
+                date: '2026-03-12',
+                size: '7.5KB'
             },
-            {
-                id: 8,
-                title: "竞品PPT资料",
-                description: "飞书互联网医疗解决方案原始演示文稿",
-                category: "analysis",
-                tags: ["已完成"],
-                path: "文档/竞品分析_飞书互联网医疗解决方案.pptx",
-                wordCount: "45页PPT",
-                time: "19:12",
-                icon: "📊",
-                isPPT: true
-            },
-            {
-                id: 9,
-                title: "项目README",
-                description: "完整的项目启动文档，包含技术栈、里程碑、团队架构",
-                category: "execution",
-                tags: ["已完成", "技术文档"],
-                path: "项目/知行中国/README.md",
-                wordCount: "3026字",
-                time: "19:15",
-                icon: "🚀"
-            },
-            {
-                id: 10,
-                title: "工作空间README",
-                description: "小青的工作文件夹说明和目录结构规范",
-                category: "execution",
-                tags: ["已完成"],
-                path: "README.md",
-                wordCount: "539字",
-                time: "16:34",
-                icon: "📁"
-            },
-            {
-                id: 11,
-                title: "GitHub账户设置指南",
-                description: "详细的GitHub账户创建和SSH密钥配置指南",
-                category: "technical",
-                tags: ["已完成", "技术文档"],
-                path: "config/GitHub账户设置指南.md",
-                wordCount: "4875字",
-                time: "20:49",
-                icon: "🔑"
+            { 
+                id: '飞书互联网医疗解决方案_深度分析.md', 
+                title: '飞书互联网医疗解决方案深度分析',
+                description: '飞书互联网医疗解决方案的深度竞品分析报告',
+                category: 'analysis',
+                date: '2026-03-12',
+                size: '8.3KB'
             }
         ];
-
-        // Initialize
-        document.addEventListener('DOMContentLoaded', function() {
-            // Update timestamps
-            updateTimestamps();
+        
+        // 渲染文档卡片
+        function renderDocumentCards(filterCategory = 'all') {
+            const container = document.querySelector('.grid');
+            if (!container) return;
             
-            // Render documents
-            renderDocuments(documents);
+            container.innerHTML = '';
             
-            // Initialize event listeners
-            initEventListeners();
+            const filteredDocs = filterCategory === 'all' 
+                ? documents 
+                : documents.filter(doc => doc.category === filterCategory);
             
-            // Initialize highlight.js
-            hljs.highlightAll();
-        });
-
-        // Update timestamps
-        function updateTimestamps() {
-            const now = new Date();
-            const options = { 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
-                timeZone: 'Asia/Shanghai'
-            };
-            const formattedTime = now.toLocaleString('zh-CN', options);
-            
-            document.getElementById('last-update-time').textContent = formattedTime;
-            document.getElementById('footer-update-time').textContent = formattedTime;
-        }
-
-        // Render documents
-        function renderDocuments(docs) {
-            const grid = document.getElementById('document-grid');
-            grid.innerHTML = '';
-            
-            docs.forEach(doc => {
-                const card = createDocumentCard(doc);
-                grid.appendChild(card);
-            });
-        }
-
-        // Create document card
-        function createDocumentCard(doc) {
-            const card = document.createElement('div');
-            card.className = 'doc-card bg-white rounded-xl shadow-lg p-6';
-            card.dataset.id = doc.id;
-            card.dataset.category = doc.category;
-            card.dataset.tags = doc.tags.join(',');
-            
-            // Tags HTML
-            const tagsHTML = doc.tags.map(tag => {
-                let colorClass = 'bg-gray-100 text-gray-800';
-                if (tag === '已完成') colorClass = 'bg-green-100 text-green-800';
-                if (tag === '进行中') colorClass = 'bg-yellow-100 text-yellow-800';
-                if (tag === '核心文档') colorClass = 'bg-blue-100 text-blue-800';
-                if (tag === '分析报告') colorClass = 'bg-purple-100 text-purple-800';
-                if (tag === '技术文档') colorClass = 'bg-red-100 text-red-800';
+            filteredDocs.forEach(doc => {
+                const categoryClass = {
+                    'core': 'category-core',
+                    'analysis': 'category-analysis',
+                    'plan': 'category-plan',
+                    'tech': 'category-tech'
+                }[doc.category] || 'bg-gray-100 text-gray-800';
                 
-                return `<span class="px-2 py-1 rounded-full text-xs font-medium ${colorClass}">${tag}</span>`;
-            }).join(' ');
-            
-            // Action buttons based on file type
-            let actionButton = '';
-            if (doc.isPPT) {
-                actionButton = `
-                    <button class="view-ppt-btn px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium" data-path="${doc.path}">
-                        下载PPT
-                    </button>
+                const card = document.createElement('div');
+                card.className = 'doc-card bg-white rounded-xl border border-gray-200 p-5';
+                card.innerHTML = `
+                    <div class="flex justify-between items-start mb-3">
+                        <div>
+                            <span class="${categoryClass} category-badge">${getCategoryName(doc.category)}</span>
+                        </div>
+                        <div class="text-xs text-gray-500">${doc.date}</div>
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-800 mb-2">${doc.title}</h3>
+                    <p class="text-gray-600 text-sm mb-4">${doc.description}</p>
+                    <div class="flex justify-between items-center">
+                        <div class="text-xs text-gray-500">${doc.size}</div>
+                        <a href="document.html?doc=${encodeURIComponent(doc.id)}" 
+                           class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors">
+                            阅读文档
+                        </a>
+                    </div>
                 `;
-            } else {
-                actionButton = `
-                    <button class="view-doc-btn px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg hover:from-blue-600 hover:to-purple-600 transition-colors text-sm font-medium" data-path="${doc.path}">
-                        阅读文档
-                    </button>
+                container.appendChild(card);
+            });
+            
+            // 如果没有文档
+            if (filteredDocs.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-3 text-center py-12">
+                        <div class="text-gray-400 mb-2">📭</div>
+                        <div class="text-gray-500">该分类下暂无文档</div>
+                    </div>
                 `;
             }
-            
-            card.innerHTML = `
-                <div class="flex items-start justify-between mb-4">
-                    <div class="flex items-center space-x-3">
-                        <div class="text-2xl">${doc.icon}</div>
-                        <div>
-                            <h3 class="font-bold text-gray-800 text-lg">${doc.title}</h3>
-                            <div class="flex items-center space-x-2 text-sm text-gray-600 mt-1">
-                                <span>${doc.wordCount}</span>
-                                <span>•</span>
-                                <span>${doc.time}</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="flex space-x-2">
-                        ${actionButton}
-                    </div>
-                </div>
-                
-                <p class="text-gray-600 mb-4">${doc.description}</p>
-                
-                <div class="flex flex-wrap gap-2 mb-4">
-                    ${tagsHTML}
-                </div>
-                
-                <div class="flex justify-between items-center text-sm text-gray-500">
-                    <span>${getCategoryName(doc.category)}</span>
-                    <span class="flex items-center">
-                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
-                        </svg>
-                        点击查看
-                    </span>
-                </div>
-            `;
-            
-            return card;
         }
-
-        // Get category name
+        
+        // 获取分类名称
         function getCategoryName(category) {
-            const categories = {
-                'all': '全部文档',
-                'core': '核心项目文档',
-                'analysis': '竞品分析与研究',
-                'execution': '项目执行与结构',
-                'technical': '技术配置'
+            const names = {
+                'core': '核心文档',
+                'analysis': '竞品分析',
+                'plan': '实施计划',
+                'tech': '技术文档'
             };
-            return categories[category] || category;
+            return names[category] || category;
         }
-
-        // Initialize event listeners
-        function initEventListeners() {
-            // Format switcher
-            document.querySelectorAll('.format-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    document.querySelectorAll('.format-btn').forEach(b => b.classList.remove('active'));
-                    this.classList.add('active');
-                    const format = this.dataset.format;
-                    // Implement format switching logic
-                    console.log('切换到格式:', format);
+        
+        // 搜索功能
+        function setupSearch() {
+            const searchInput = document.getElementById('search-input');
+            if (!searchInput) return;
+            
+            searchInput.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase().trim();
+                const container = document.querySelector('.grid');
+                
+                if (!searchTerm) {
+                    renderDocumentCards(currentCategory);
+                    return;
+                }
+                
+                const filteredDocs = documents.filter(doc => 
+                    doc.title.toLowerCase().includes(searchTerm) ||
+                    doc.description.toLowerCase().includes(searchTerm) ||
+                    doc.category.toLowerCase().includes(searchTerm)
+                );
+                
+                container.innerHTML = '';
+                
+                if (filteredDocs.length === 0) {
+                    container.innerHTML = `
+                        <div class="col-span-3 text-center py-12">
+                            <div class="text-gray-400 mb-2">🔍</div>
+                            <div class="text-gray-500">未找到匹配的文档</div>
+                            <div class="text-gray-400 text-sm mt-1">尝试其他关键词</div>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                filteredDocs.forEach(doc => {
+                    const categoryClass = {
+                        'core': 'category-core',
+                        'analysis': 'category-analysis',
+                        'plan': 'category-plan',
+                        'tech': 'category-tech'
+                    }[doc.category] || 'bg-gray-100 text-gray-800';
+                    
+                    const card = document.createElement('div');
+                    card.className = 'doc-card bg-white rounded-xl border border-gray-200 p-5';
+                    card.innerHTML = `
+                        <div class="flex justify-between items-start mb-3">
+                            <div>
+                                <span class="${categoryClass} category-badge">${getCategoryName(doc.category)}</span>
+                            </div>
+                            <div class="text-xs text-gray-500">${doc.date}</div>
+                        </div>
+                        <h3 class="text-lg font-bold text-gray-800 mb-2">${highlightText(doc.title, searchTerm)}</h3>
+                        <p class="text-gray-600 text-sm mb-4">${highlightText(doc.description, searchTerm)}</p>
+                        <div class="flex justify-between items-center">
+                            <div class="text-xs text-gray-500">${doc.size}</div>
+                            <a href="document.html?doc=${encodeURIComponent(doc.id)}" 
+                               class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors">
+                                阅读文档
+                            </a>
+                        </div>
+                    `;
+                    container.appendChild(card);
                 });
             });
-
-            // Category filter
-            document.querySelectorAll('.category-btn').forEach(btn => {
+        }
+        
+        // 高亮搜索词
+        function highlightText(text, searchTerm) {
+            if (!searchTerm) return text;
+            const regex = new RegExp(`(${searchTerm})`, 'gi');
+            return text.replace(regex, '<span class="bg-yellow-200 px-1 rounded">$1</span>');
+        }
+        
+        // 分类筛选
+        let currentCategory = 'all';
+        function setupCategoryFilter() {
+            document.querySelectorAll('.category-filter').forEach(btn => {
                 btn.addEventListener('click', function() {
                     const category = this.dataset.category;
-                    filterDocuments(category);
+                    currentCategory = category;
                     
-                    // Update active state
-                    document.querySelectorAll('.category-btn').forEach(b => {
-                        b.classList.remove('font-medium', 'text-gray-700');
-                        b.classList.add('text-gray-600');
+                    // 更新按钮状态
+                    document.querySelectorAll('.category-filter').forEach(b => {
+                        if (b.dataset.category === category) {
+                            b.classList.remove('bg-gray-100', 'text-gray-800');
+                            b.classList.add('bg-blue-100', 'text-blue-800');
+                        } else {
+                            b.classList.remove('bg-blue-100', 'text-blue-800');
+                            b.classList.add('bg-gray-100', 'text-gray-800');
+                        }
                     });
-                    this.classList.add('font-medium', 'text-gray-700');
-                    this.classList.remove('text-gray-600');
-                });
-            });
-
-            // Tag filter
-            document.querySelectorAll('.tag-filter').forEach(tag => {
-                tag.addEventListener('click', function() {
-                    const tagName = this.dataset.tag;
-                    filterByTag(tagName);
-                });
-            });
-
-            // Search functionality
-            const searchInput = document.getElementById('search-input');
-            searchInput.addEventListener('input', function() {
-                const query = this.value.toLowerCase();
-                searchDocuments(query);
-            });
-
-            // Document view buttons (will be added after cards are rendered)
-            setTimeout(() => {
-                document.querySelectorAll('.view-doc-btn').forEach(btn => {
-                    btn.addEventListener('click', function() {
-                        const path = this.dataset.path;
-                        openDocumentModal(path);
-                    });
-                });
-
-                document.querySelectorAll('.view-ppt-btn').forEach(btn => {
-                    btn.addEventListener('click', function() {
-                        const path = this.dataset.path;
-                        window.open(path, '_blank');
-                    });
-                });
-            }, 100);
-
-            // Modal close button
-            document.getElementById('close-modal').addEventListener('click', closeModal);
-
-            // Modal format switcher
-            document.querySelectorAll('.modal-format-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    document.querySelectorAll('.modal-format-btn').forEach(b => {
-                        b.classList.remove('active', 'bg-white', 'shadow');
-                    });
-                    this.classList.add('active', 'bg-white', 'shadow');
-                    const format = this.dataset.format;
-                    switchDocumentFormat(format);
-                });
-            });
-
-            // Copy button
-            document.getElementById('copy-btn').addEventListener('click', copyDocumentContent);
-
-            // Download button
-            document.getElementById('download-btn').addEventListener('click', downloadDocument);
-        }
-
-        // Filter documents by category
-        function filterDocuments(category) {
-            let filteredDocs = documents;
-            if (category !== 'all') {
-                filteredDocs = documents.filter(doc => doc.category === category);
-            }
-            renderDocuments(filteredDocs);
-            
-            // Re-attach event listeners to new buttons
-            setTimeout(() => {
-                document.querySelectorAll('.view-doc-btn').forEach(btn => {
-                    btn.addEventListener('click', function() {
-                        const path = this.dataset.path;
-                        openDocumentModal(path);
-                    });
-                });
-                document.querySelectorAll('.view-ppt-btn').forEach(btn => {
-                    btn.addEventListener('click', function() {
-                        const path = this.dataset.path;
-                        window.open(path, '_blank');
-                    });
-                });
-            }, 50);
-        }
-
-        // Filter by tag
-        function filterByTag(tagName) {
-            const filteredDocs = documents.filter(doc => doc.tags.includes(tagName));
-            renderDocuments(filteredDocs);
-            
-            // Update UI
-            document.querySelectorAll('.category-btn').forEach(b => {
-                b.classList.remove('font-medium', 'text-gray-700');
-                b.classList.add('text-gray-600');
-            });
-            document.querySelector('.category-btn[data-category="all"]').classList.add('font-medium', 'text-gray-700');
-            
-            // Re-attach event listeners
-            setTimeout(() => {
-                document.querySelectorAll('.view-doc-btn').forEach(btn => {
-                    btn.addEventListener('click', function() {
-                        const path = this.dataset.path;
-                        openDocumentModal(path);
-                    });
-                });
-                document.querySelectorAll('.view-ppt-btn').forEach(btn => {
-                    btn.addEventListener('click', function() {
-                        const path = this.dataset.path;
-                        window.open(path, '_blank');
-                    });
-                });
-            }, 50);
-        }
-
-        // Search documents
-        function searchDocuments(query) {
-            if (!query.trim()) {
-                renderDocuments(documents);
-                return;
-            }
-            
-            const filteredDocs = documents.filter(doc => {
-                return doc.title.toLowerCase().includes(query) || 
-                       doc.description.toLowerCase().includes(query) ||
-                       doc.tags.some(tag => tag.toLowerCase().includes(query));
-            });
-            
-            renderDocuments(filteredDocs);
-            
-            // Highlight search terms in titles
-            document.querySelectorAll('.doc-card h3').forEach(title => {
-                const original = title.textContent;
-                const highlighted = original.replace(
-                    new RegExp(query, 'gi'),
-                    match => `<span class="search-highlight">${match}</span>`
-                );
-                if (highlighted !== original) {
-                    title.innerHTML = highlighted;
-                }
-            });
-            
-            // Re-attach event listeners
-            setTimeout(() => {
-                document.querySelectorAll('.view-doc-btn').forEach(btn => {
-                    btn.addEventListener('click', function() {
-                        const path = this.dataset.path;
-                        openDocumentModal(path);
-                    });
-                });
-                document.querySelectorAll('.view-ppt-btn').forEach(btn => {
-                    btn.addEventListener('click', function() {
-                        const path = this.dataset.path;
-                        window.open(path, '_blank');
-                    });
-                });
-            }, 50);
-        }
-
-        // Open document modal
-        async function openDocumentModal(path) {
-            try {
-                // Show loading
-                document.getElementById('modal-content').innerHTML = `
-                    <div class="flex justify-center items-center h-64">
-                        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-                    </div>
-                `;
-                
-                // Show modal
-                document.getElementById('document-modal').classList.remove('hidden');
-                
-                // Fetch document content
-                const response = await fetch(path);
-                if (!response.ok) throw new Error('文档加载失败');
-                
-                const content = await response.text();
-                const fileName = path.split('/').pop();
-                
-                // Update modal info
-                document.getElementById('modal-title').textContent = fileName;
-                document.getElementById('modal-meta').innerHTML = `
-                    <span>${path}</span> • 
-                    <span>${content.length} 字符</span> • 
-                    <span>${Math.ceil(content.length / 5)} 单词</span>
-                `;
-                
-                // Update counts
-                document.getElementById('char-count').textContent = content.length;
-                document.getElementById('word-count').textContent = Math.ceil(content.length / 5);
-                document.getElementById('reading-time').textContent = Math.ceil(content.length / 1000);
-                
-                // Store current content and path
-                document.getElementById('modal-content').dataset.rawContent = content;
-                document.getElementById('modal-content').dataset.currentPath = path;
-                
-                // Display in web format by default
-                switchDocumentFormat('web');
-                
-            } catch (error) {
-                document.getElementById('modal-content').innerHTML = `
-                    <div class="text-center py-12">
-                        <div class="text-red-500 text-6xl mb-4">❌</div>
-                        <h3 class="text-xl font-bold text-gray-800 mb-2">文档加载失败</h3>
-                        <p class="text-gray-600">${error.message}</p>
-                        <button onclick="closeModal()" class="mt-4 px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors">
-                            关闭
-                        </button>
-                    </div>
-                `;
-            }
-        }
-
-        // Switch document format
-        function switchDocumentFormat(format) {
-            const contentDiv = document.getElementById('modal-content');
-            const rawContent = contentDiv.dataset.rawContent;
-            
-            if (!rawContent) return;
-            
-            let displayContent = '';
-            
-            switch(format) {
-                case 'web':
-                    // Convert markdown to HTML (simplified version)
-                    displayContent = convertMarkdownToHTML(rawContent);
-                    contentDiv.className = 'prose max-w-none';
-                    break;
                     
-                case 'markdown':
-                    displayContent = `<pre><code class="language-markdown">${escapeHtml(rawContent)}</code></pre>`;
-                    contentDiv.className = '';
-                    break;
+                    // 清空搜索框
+                    const searchInput = document.getElementById('search-input');
+                    if (searchInput) searchInput.value = '';
                     
-                case 'raw':
-                    displayContent = `<pre class="whitespace-pre-wrap font-mono text-sm">${escapeHtml(rawContent)}</pre>`;
-                    contentDiv.className = '';
-                    break;
-            }
-            
-            contentDiv.innerHTML = displayContent;
-            
-            // Re-initialize highlight.js for markdown format
-            if (format === 'markdown') {
-                hljs.highlightAll();
-            }
+                    // 重新渲染文档卡片
+                    renderDocumentCards(category);
+                });
+            });
         }
-
-        // Convert markdown to HTML (simplified)
-        function convertMarkdownToHTML(markdown) {
-            // Basic markdown conversion
-            let html = markdown
-                .replace(/^# (.*$)/gm, '<h1 class="text-3xl font-bold mt-6 mb-4">$1</h1>')
-                .replace(/^## (.*$)/gm, '<h2 class="text-2xl font-bold mt-5 mb-3">$1</h2>')
-                .replace(/^### (.*$)/gm, '<h3 class="text-xl font-bold mt-4 mb-2">$1</h3>')
-                .replace(/^\> (.*$)/gm, '<blockquote class="border-l-4 border-blue-500 pl-4 italic my-4">$1</blockquote>')
-                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-                .replace(/\*(.*?)\*/g, '<em>$1</em>')
-                .replace(/`(.*?)`/g, '<code class="bg-gray-100 px-1 py-0.5 rounded">$1</code>')
-                .replace(/!\[(.*?)\]\((.*?)\)/g, '<img alt="$1" src="$2" class="rounded-lg my-4 max-w-full">')
-                .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" class="text-blue-600 hover:underline">$1</a>')
-                .replace(/^- (.*$)/gm, '<li
+        
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 初始渲染所有文档
+            renderDocumentCards('all');
+            
+            // 设置搜索功能
+            setupSearch();
+            
+            // 设置分类筛选
+            setupCategoryFilter();
+            
+            // 显示用户信息
+            displayUserInfo();
+        });
+    </script>
+</body>
+</html>

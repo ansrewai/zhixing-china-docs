@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文档阅读 - 知行中国</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Highlight.js for code highlighting -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/markdown.min.js"></script>
+    <!-- Marked.js for Markdown rendering -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        .format-btn.active { background-color: #3b82f6; color: white; }
+        .document-container { max-width: 900px; margin: 0 auto; }
+        .markdown-rendered { font-family: -apple-system, sans-serif; line-height: 1.8; color: #374151; }
+        .markdown-rendered h1 { font-size: 2.5rem; font-weight: 800; margin: 2rem 0 1.5rem; color: #111827; border-bottom: 3px solid #3b82f6; padding-bottom: 0.5rem; }
+        .markdown-rendered h2 { font-size: 2rem; font-weight: 700; margin: 2rem 0 1rem; color: #1f2937; }
+        .markdown-rendered h3 { font-size: 1.5rem; font-weight: 600; margin: 1.5rem 0 0.75rem; color: #374151; }
+        .markdown-rendered p { margin-bottom: 1.25rem; text-align: justify; }
+        .markdown-rendered ul, .markdown-rendered ol { margin-bottom: 1.25rem; padding-left: 1.5rem; }
+        .markdown-rendered li { margin-bottom: 0.5rem; }
+        .markdown-rendered blockquote { border-left: 4px solid #3b82f6; padding-left: 1rem; margin: 0; color: #6b7280; font-style: italic; background: #f9fafb; padding: 1rem; border-radius: 0 0.5rem 0.5rem 0; }
+        .markdown-rendered code { background: #f3f4f6; padding: 0.2rem 0.4rem; border-radius: 0.25rem; font-family: monospace; color: #dc2626; }
+        .markdown-rendered pre { background: #1f2937; color: #f9fafb; padding: 1.25rem; border-radius: 0.5rem; overflow-x: auto; margin-bottom: 1.25rem; }
+        .markdown-rendered table { width: 100%; border-collapse: collapse; margin-bottom: 1.25rem; }
+        .markdown-rendered th, .markdown-rendered td { border: 1px solid #e5e7eb; padding: 0.75rem; text-align: left; }
+        .markdown-rendered th { background: #f9fafb; font-weight: 600; }
+        .markdown-rendered tr:nth-child(even) { background: #f9fafb; }
+        .markdown-rendered a { color: #3b82f6; text-decoration: none; border-bottom: 1px dotted #3b82f6; }
+        .markdown-rendered a:hover { color: #1d4ed8; border-bottom: 1px solid #1d4ed8; }
+        .markdown-raw { font-family: monospace; white-space: pre-wrap; background: #f8fafc; padding: 1.5rem; border-radius: 0.5rem; border: 1px solid #e2e8f0; line-height: 1.6; }
+        .hidden { display: none; }
+        .theme-light { background: white; color: #374151; }
+        .theme-dark { background: #1f2937; color: #f9fafb; }
+        .theme-dark .markdown-rendered { color: #e5e7eb; }
+        .theme-dark .markdown-rendered h1, .theme-dark .markdown-rendered h2, .theme-dark .markdown-rendered h3 { color: #f9fafb; }
+        .theme-sepia { background: #fef3c7; color: #78350f; }
+    </style>
+    <!-- 登录检查 -->
+    <script>
+        function checkLogin() {
+            const loginData = localStorage.getItem('zhixing_login');
+            const hasCookie = document.cookie.split(';').some(cookie => 
+                cookie.trim().startsWith('zhixing_auth=')
+            );
+            if (!loginData && !hasCookie) {
+                window.location.href = 'login.html';
+                return false;
+            }
+            if (loginData) {
+                try {
+                    const data = JSON.parse(loginData);
+                    const now = new Date().getTime();
+                    const sevenDays = 7 * 24 * 60 * 60 * 1000;
+                    if (data.remember && (now - data.timestamp) > sevenDays) {
+                        localStorage.removeItem('zhixing_login');
+                        window.location.href = 'login.html';
+                        return false;
+                    }
+                } catch (e) {
+                    localStorage.removeItem('zhixing_login');
+                    window.location.href = 'login.html';
+                    return false;
+                }
+            }
+            return true;
+        }
+        if (!checkLogin()) throw new Error('未登录');
+    </script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- 导航 -->
+    <nav class="bg-white shadow-md border-b">
+        <div class="container mx-auto px-4 py-3">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-4">
+                    <a href="index.html" class="flex items-center space-x-2 text-blue-600 hover:text-blue-800">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                        </svg>
+                        <span>返回首页</span>
+                    </a>
+                    <div class="text-xl font-bold text-gray-800">文档阅读器</div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <!-- 格式切换 -->
+                    <div class="flex bg-gray-100 rounded-lg p-1">
+                        <button id="format-web" class="format-btn active px-3 py-1 rounded-md text-sm font-medium" data-format="web">🌐 网页格式</button>
+                        <button id="format-markdown" class="format-btn px-3 py-1 rounded-md text-sm font-medium" data-format="markdown">📝 Markdown格式</button>
+                        <button id="format-raw" class="format-btn px-3 py-1 rounded-md text-sm font-medium" data-format="raw">📄 原始文本</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 文档内容 -->
+    <div class="container mx-auto px-4 py-8">
+        <div class="document-container">
+            <!-- 文档标题 -->
+            <div class="mb-8">
+                <h1 id="document-title" class="text-3xl font-bold text-gray-900 mb-2">文档标题</h1>
+                <div class="flex items-center text-gray-600 text-sm">
+                    <span id="document-info">加载中...</span>
+                </div>
+            </div>
+            
+            <!-- 文档内容区域 -->
+            <div class="mt-6">
+                <div id="content-web" class="format-content markdown-rendered"></div>
+                <div id="content-markdown" class="format-content markdown-raw hidden"></div>
+                <div id="content-raw" class="format-content markdown-raw hidden"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 文档数据
+        const documents = [
+            { id: '项目总览_README.md', title: '项目总览：知行中国脑健康志愿者培训平台' },
+            { id: '知行中国_2026脑健康管理平台_分析报告.md', title: '知行中国 - 2026脑健康管理平台分析报告' },
+            { id: '知行中国_2026脑健康管理平台_详细分析.md', title: '知行中国 - 2026脑健康管理平台详细分析' },
+            { id: '知行中国_志愿者培训MVP_功能架构设计.md', title: '知行中国 - 志愿者培训MVP功能架构设计' },
+            { id: '知行中国_志愿者培训MVP_详细实施计划.md', title: '知行中国 - 志愿者培训MVP详细实施计划' },
+            { id: '知行中国_技能安装计划.md', title: '知行中国 - 技能安装计划' },
+            { id: '知行中国_竞品分析与经验总结.md', title: '知行中国 - 竞品分析与经验总结' },
+            { id: '飞书互联网医疗解决方案_深度分析.md', title: '飞书互联网医疗解决方案深度分析' }
+        ];
+        
+        let currentFormat = 'web';
+        
+        // 从URL获取文档
+        function getDocumentFromURL() {
+            const params = new URLSearchParams(window.location.search);
+            return params.get('doc') || documents[0]?.id;
+        }
+        
+        // 加载文档
+        async function loadDocument(docId) {
+            try {
+                const response = await fetch(`文档/${docId}`);
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                return await response.text();
+            } catch (error) {
+                console.error('加载失败:', error);
+                return `# 文档加载失败\n\n无法加载文档: ${docId}\n\n错误: ${error.message}`;
+            }
+        }
+        
+        // 渲染文档
+        async function renderDocument() {
+            const docId = getDocumentFromURL();
+            const docTitle = documents.find(d => d.id === docId)?.title || docId;
+            
+            document.getElementById('document-title').textContent = docTitle;
+            document.getElementById('document-info').textContent = `文档: ${docId}`;
+            
+            const content = await loadDocument(docId);
+            
+            // 原始文本
+            document.getElementById('content-raw').textContent = content;
+            
+            // Markdown格式
+            document.getElementById('content-markdown').textContent = content;
+            
+            // 网页格式
+            const html = marked.parse(content, { breaks: true, gfm: true });
+            document.getElementById('content-web').innerHTML = html;
+            
+            // 代码高亮
+            document.querySelectorAll('pre code').forEach(block => {
+                hljs.highlightElement(block);
+            });
+            
+            showFormat(currentFormat);
+        }
+        
+        // 显示格式
+        function showFormat(format) {
+            currentFormat = format;
+            document.querySelectorAll('.format-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById(`content-${format}`).classList.remove('hidden');
+            document.querySelectorAll('.format-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.format === format);
+            });
+        }
+        
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            renderDocument();
+            
+            // 绑定格式切换
+            document.querySelectorAll('.format-btn').forEach(btn => {
+                btn.addEventListener('click', () => showFormat(btn.dataset.format));
+            });
+        });
+    </script>
+</body>
+</html>
