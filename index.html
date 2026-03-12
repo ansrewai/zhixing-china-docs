@@ -60,14 +60,21 @@
             throw new Error('未登录，重定向中...');
         }
         
-        // 显示用户信息
+        // 显示用户信息（确保只显示一次）
         function displayUserInfo() {
             const loginData = localStorage.getItem('zhixing_login');
             if (loginData) {
                 try {
                     const data = JSON.parse(loginData);
+                    
+                    // 检查是否已经存在用户信息显示
+                    const existingUserInfo = document.querySelector('.user-info-display');
+                    if (existingUserInfo) {
+                        existingUserInfo.remove();
+                    }
+                    
                     const userInfoDiv = document.createElement('div');
-                    userInfoDiv.className = 'flex items-center space-x-2';
+                    userInfoDiv.className = 'user-info-display flex items-center space-x-2';
                     userInfoDiv.innerHTML = `
                         <span class="text-sm text-gray-700">欢迎，${data.username}</span>
                         <button id="logout-btn" class="bg-red-500 hover:bg-red-600 text-white text-xs px-2 py-1 rounded transition-colors">
@@ -78,6 +85,8 @@
                     const nav = document.querySelector('nav .flex:last-child');
                     if (nav) {
                         nav.appendChild(userInfoDiv);
+                        
+                        // 添加退出功能
                         document.getElementById('logout-btn').addEventListener('click', function() {
                             localStorage.removeItem('zhixing_login');
                             document.cookie = 'zhixing_auth=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
@@ -89,8 +98,6 @@
                 }
             }
         }
-        
-        document.addEventListener('DOMContentLoaded', displayUserInfo);
     </script>
 </head>
 <body class="bg-gray-50 min-h-screen">
@@ -203,6 +210,14 @@
                 category: 'tech',
                 date: '2026-03-12',
                 size: '8.7KB'
+            },
+            { 
+                id: '志愿者培训师MVP产品设计_扩充版.md', 
+                title: '志愿者培训师MVP产品设计（扩充版）',
+                description: '基于互联网产品MVP最佳实践的完整产品设计，包含用户体验、增长策略、商业模式',
+                category: 'tech',
+                date: '2026-03-13',
+                size: '5.7KB'
             },
             { 
                 id: '知行中国_志愿者培训MVP_详细实施计划.md', 
