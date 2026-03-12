@@ -48,6 +48,87 @@
             border-radius: 0.2rem;
         }
     </style>
+    <!-- 登录检查脚本 -->
+    <script>
+        // 登录状态检查
+        function checkLogin() {
+            const loginData = localStorage.getItem('zhixing_login');
+            const hasCookie = document.cookie.split(';').some(cookie => 
+                cookie.trim().startsWith('zhixing_auth=')
+            );
+            
+            // 如果未登录，重定向到登录页
+            if (!loginData && !hasCookie) {
+                window.location.href = 'login.html';
+                return false;
+            }
+            
+            // 验证登录数据
+            if (loginData) {
+                try {
+                    const data = JSON.parse(loginData);
+                    const now = new Date().getTime();
+                    const sevenDays = 7 * 24 * 60 * 60 * 1000;
+                    
+                    if (data.remember && (now - data.timestamp) > sevenDays) {
+                        // 记住登录已过期
+                        localStorage.removeItem('zhixing_login');
+                        window.location.href = 'login.html';
+                        return false;
+                    }
+                } catch (e) {
+                    // 数据无效
+                    localStorage.removeItem('zhixing_login');
+                    window.location.href = 'login.html';
+                    return false;
+                }
+            }
+            
+            return true;
+        }
+        
+        // 页面加载时检查登录
+        if (!checkLogin()) {
+            // 已重定向，停止执行
+            throw new Error('未登录，重定向中...');
+        }
+        
+        // 登录用户信息显示
+        function displayUserInfo() {
+            const loginData = localStorage.getItem('zhixing_login');
+            if (loginData) {
+                try {
+                    const data = JSON.parse(loginData);
+                    const userInfoDiv = document.createElement('div');
+                    userInfoDiv.className = 'flex items-center space-x-2 text-white';
+                    userInfoDiv.innerHTML = `
+                        <span class="text-sm">欢迎，${data.username}</span>
+                        <button id="logout-btn" class="bg-red-500 hover:bg-red-600 text-white text-xs px-2 py-1 rounded transition-colors">
+                            退出
+                        </button>
+                    `;
+                    
+                    // 添加到导航栏
+                    const nav = document.querySelector('nav .container .flex:last-child');
+                    if (nav) {
+                        nav.appendChild(userInfoDiv);
+                        
+                        // 添加退出功能
+                        document.getElementById('logout-btn').addEventListener('click', function() {
+                            localStorage.removeItem('zhixing_login');
+                            document.cookie = 'zhixing_auth=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+                            window.location.href = 'login.html';
+                        });
+                    }
+                } catch (e) {
+                    console.error('用户信息显示错误:', e);
+                }
+            }
+        }
+        
+        // DOM加载完成后显示用户信息
+        document.addEventListener('DOMContentLoaded', displayUserInfo);
+    </script>
 </head>
 <body class="bg-gray-50 min-h-screen">
     <!-- Navigation -->
