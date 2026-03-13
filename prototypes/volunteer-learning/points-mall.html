@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>积分商城 - 知行中国志愿者学习端</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* 自定义样式 */
+        :root {
+            --primary: #f59e0b;
+            --primary-dark: #d97706;
+            --secondary: #8b5cf6;
+            --accent: #10b981;
+            --light: #f8fafc;
+            --dark: #1e293b;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            min-height: 100vh;
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+        
+        /* 商品卡片 */
+        .product-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+        
+        .product-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+        }
+        
+        .product-card.hot {
+            border: 2px solid #ef4444;
+            position: relative;
+        }
+        
+        .product-card.hot::before {
+            content: "🔥 热销";
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #ef4444;
+            color: white;
+            font-size: 12px;
+            padding: 4px 8px;
+            border-radius: 12px;
+            z-index: 10;
+        }
+        
+        .product-card.new {
+            border: 2px solid #10b981;
+            position: relative;
+        }
+        
+        .product-card.new::before {
+            content: "🆕 新品";
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #10b981;
+            color: white;
+            font-size: 12px;
+            padding: 4px 8px;
+            border-radius: 12px;
+            z-index: 10;
+        }
+        
+        /* 商品图片容器 */
+        .product-image {
+            height: 180px;
+            background: linear-gradient(135deg, #f3f4f6, #e5e7eb);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        
+        /* 分类标签 */
+        .category-tag {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            margin-right: 6px;
+            margin-bottom: 6px;
+        }
+        
+        /* 价格标签 */
+        .price-tag {
+            display: inline-flex;
+            align-items: center;
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+        
+        /* 购物车动画 */
+        @keyframes addToCart {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+        
+        .add-to-cart-animation {
+            animation: addToCart 0.3s ease-out;
+        }
+        
+        /* 筛选器 */
+        .filter-pill {
+            padding: 8px 16px;
+            border-radius: 20px;
+            background: white;
+            border: 2px solid #e5e7eb;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .filter-pill.active {
+            background: #f59e0b;
+            color: white;
+            border-color: #f59e0b;
+        }
+        
+        .filter-pill:hover:not(.active) {
+            border-color: #f59e0b;
+            color: #f59e0b;
+        }
+        
+        /* 安全区域适配 */
+        .safe-bottom {
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+        
+        /* 响应式调整 */
+        @media (max-width: 640px) {
+            .product-card {
+                margin-bottom: 1rem;
+            }
+            
+            .product-image {
+                height: 150px;
+            }
+            
+            .filter-pill {
+                padding: 6px 12px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+    <!-- 顶部导航 -->
+    <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-gray-200">
+        <div class="container mx-auto px-4 py-3">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <a href="../index.html" class="text-gray-600 hover:text-gray-900">
+                        <i class="fas fa-arrow-left text-lg"></i>
+                    </a>
+                    <div>
+                        <h1 class="text-xl font-bold text-gray-900">积分商城</h1>
+                        <p class="text-sm text-gray-500">用积分兑换精彩好礼</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button onclick="showCart()" class="relative p-2 text-gray-600 hover:text-gray-900">
+                        <i class="fas fa-shopping-cart text-lg"></i>
+                        <span id="cart-count" class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">3</span>
+                    </button>
+                    <div class="flex items-center">
+                        <i class="fas fa-coins text-amber-500 mr-2"></i>
+                        <span class="font-bold text-amber-600" id="user-points">8,650</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- 主要内容 -->
+    <main class="container mx-auto px-4 py-6">
+        <!-- 搜索和筛选 -->
+        <section class="mb-6">
+            <div class="bg-white rounded-2xl shadow p-4">
+                <!-- 搜索框 -->
+                <div class="relative mb-4">
+                    <input type="text" 
+                           id="search-input"
+                           placeholder="搜索商品名称..." 
+                           class="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent">
+                    <i class="fas fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                    <button onclick="clearSearch()" class="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                <!-- 分类筛选 -->
+                <div class="mb-4">
+                    <div class="text-sm font-medium text-gray-700 mb-2">商品分类</div>
+                    <div class="flex flex-wrap gap-2">
+                        <div class="filter-pill active" onclick="filterCategory('all')">全部商品</div>
+                        <div class="filter-pill" onclick="filterCategory('digital')">
+                            <i class="fas fa-laptop-code mr-2"></i>数字商品
+                        </div>
+                        <div class="filter-pill" onclick="filterCategory('physical')">
+                            <i class="fas fa-box mr-2"></i>实物商品
+                        </div>
+                        <div class="filter-pill" onclick="filterCategory('course')">
+                            <i class="fas fa-graduation-cap mr-2"></i>课程特权
+                        </div>
+                        <div class="filter-pill" onclick="filterCategory('service')">
+                            <i class="fas fa-concierge-bell mr-2"></i>专属服务
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 排序筛选 -->
+                <div>
+                    <div class="text-sm font-medium text-gray-700 mb-2">排序方式</div>
+                    <div class="flex flex-wrap gap-2">
+                        <div class="filter-pill active" onclick="sortBy('recommend')">推荐</div>
+                        <div class="filter-pill" onclick="sortBy('price-low')">积分从低到高</div>
+                        <div class="filter-pill" onclick="sortBy('price-high')">积分从高到低</div>
+                        <div class="filter-pill" onclick="sortBy('popular')">人气最高</div>
+                        <div class="filter-pill" onclick="sortBy('new')">最新上架</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 商品列表 -->
+        <section class="mb-8">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-xl font-bold text-gray-900">精选商品</h3>
+                <span class="text-sm text-gray-500" id="product-count">共 12 件商品</span>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="product-grid">
+                <!-- 商品1 -->
+                <div class="product-card hot" data-category="course" data-price="500">
+                    <div class="product-image">
+                        <div class="text-center">
+                            <i class="fas fa-crown text-5xl text-amber-400"></i>
+                            <div class="mt-2 text-amber-600 font-bold">VIP会员</div>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <div class="flex justify-between items-start mb-2">
+                            <h4 class="font-bold text-gray-900 text-lg">黄金会员月卡</h4>
+                            <span class="price-tag">
+                                <i class="fas fa-coins mr-1"></i>500
+                            </span>
+                        </div>
+                        <p class="text-sm text-gray-600 mb-3">享受30天黄金会员特权，包含专属课程、优先客服等</p>
+                        <div class="flex flex-wrap mb-4">
+                            <span class="category-tag bg-blue-100 text-blue-800">课程特权</span>
+                            <span class="category-tag bg-green-100 text-green-800">限时优惠</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <div class="text-sm text-gray-500">
+                                <i class="fas fa-users mr-1"></i> 1,234人兑换
+                            </div>
+                            <button onclick="addToCart(1)" class="px-4 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition flex items-center">
+                                <i class="fas fa-cart-plus mr-2"></i>加入购物车
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 商品2 -->
+                <div class="product-card new" data-category="digital" data-price="300">
+                    <div class="product-image">
+                        <div class="text-center">
+                            <i class="fas fa-book-open text-5xl text-indigo-400"></i>
+                            <div class="mt-2 text-indigo-600 font-bold">电子书</div>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <div class="flex justify-between items-start mb-2">
+                            <h4 class="font-bold text-gray-900 text-lg">认知症照护指南</h4>
+                            <span class="price-tag">
+                                <i class="fas fa-coins mr-1"></i>300
+                            </span>
+                        </div>
+                        <p class="text-sm text-gray-600 mb-3">专业电子书，包含最新认知症照护方法和技巧</p>
+                        <div class="flex flex-wrap mb-4">
+                            <span class="category-tag bg-purple-100 text-purple-800">数字商品</span>
+                            <span class="category-tag bg-pink-100 text-pink-800">学习资料</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <div class="text-sm text-gray-500">
+                                <i class="fas fa-download mr-1"></i> 立即下载
+                            </div>
+                            <button onclick="addToCart(2)" class="px-4 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition flex items-center">
+                                <i class="fas fa-cart-plus mr-2"></i>加入购物车
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 商品3 -->
+                <div class="product-card" data-category="physical" data-price="1200">
+                    <div class="product-image">
+                        <div class="text-center">
+                            <i class="fas fa-tshirt text-5xl text-red-400"></i>
+                            <div class="mt-2 text-red-600 font-bold">志愿者服装</div>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <div class="flex justify-between items-start mb-2">
+                            <h4 class="font-bold text-gray-900 text-lg">志愿者专属T恤</h4>
+                            <span class="price-tag">
+                                <i class="fas fa-coins mr-1"></i>1,200
+                            </span>
+                        </div>
+                        <p class="text-sm text-gray-600 mb-3">高品质棉质T恤，印有知行中国志愿者标识</p>
+                        <div class="flex flex-wrap mb-4">
+                            <span class="category-tag bg-red-100 text-red-800">实物商品</span>
+                            <span class="category-tag bg-yellow-100 text-yellow-800">限量版</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <div class="text-sm text-gray-500">
+                                库存: <span class="font-bold">42</span> 件
+                            </div>
+                            <button onclick="addToCart(3)" class="px-4 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition flex items-center">
+                                <i class="fas fa-cart-plus mr-2"></i>加入购物车
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 商品4 -->
+                <div class="product-card" data-category="service" data-price="800">
+                    <div class="product-image">
+                        <div class="text-center">
+                            <i class="fas fa-user-tie text-5xl text-green-400"></i>
+                            <div class="mt-2 text-green-600 font-bold">专家咨询</div>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <div class="flex justify-between items-start mb-2">
+                            <h4 class="font-bold text-gray-900 text-lg">专家1对1咨询</h4>
+                            <span class="price-tag">
+                                <i class="fas fa-coins mr-1"></i>800
+                            </span>
+                        </div>
+                        <p class="text-sm text-gray-

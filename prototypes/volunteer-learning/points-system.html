@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>积分系统 - 知行中国志愿者学习端</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* 自定义样式 */
+        :root {
+            --primary: #10b981;
+            --primary-dark: #059669;
+            --secondary: #f59e0b;
+            --accent: #8b5cf6;
+            --light: #f8fafc;
+            --dark: #1e293b;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            min-height: 100vh;
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+        
+        /* 积分卡片 */
+        .points-card {
+            background: linear-gradient(135deg, #ffffff, #f8fafc);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(16, 185, 129, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .points-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(16, 185, 129, 0.3);
+        }
+        
+        /* 积分动画 */
+        @keyframes coinSpin {
+            0% { transform: rotateY(0deg); }
+            100% { transform: rotateY(360deg); }
+        }
+        
+        .coin-spin {
+            animation: coinSpin 2s linear infinite;
+        }
+        
+        @keyframes pointsGain {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.2); opacity: 0.8; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        .points-gain {
+            animation: pointsGain 0.5s ease-out;
+        }
+        
+        /* 进度条 */
+        .progress-bar {
+            height: 12px;
+            border-radius: 6px;
+            background: linear-gradient(90deg, #10b981, #34d399);
+            box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+        }
+        
+        /* 任务卡片 */
+        .task-card {
+            border-left: 4px solid #10b981;
+            transition: all 0.2s ease;
+        }
+        
+        .task-card:hover {
+            background-color: #f0fdf4;
+        }
+        
+        .task-card.completed {
+            border-left-color: #94a3b8;
+            opacity: 0.7;
+        }
+        
+        /* 安全区域适配 */
+        .safe-bottom {
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+        
+        /* 响应式调整 */
+        @media (max-width: 640px) {
+            .points-card {
+                margin-bottom: 1rem;
+            }
+            
+            .task-card {
+                margin-bottom: 0.75rem;
+            }
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+    <!-- 顶部导航 -->
+    <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-gray-200">
+        <div class="container mx-auto px-4 py-3">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <a href="../index.html" class="text-gray-600 hover:text-gray-900">
+                        <i class="fas fa-arrow-left text-lg"></i>
+                    </a>
+                    <div>
+                        <h1 class="text-xl font-bold text-gray-900">积分系统</h1>
+                        <p class="text-sm text-gray-500">积少成多，兑换精彩</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button onclick="showPointsHistory()" class="p-2 text-gray-600 hover:text-gray-900">
+                        <i class="fas fa-history text-lg"></i>
+                    </button>
+                    <button onclick="showHelp()" class="p-2 text-gray-600 hover:text-gray-900">
+                        <i class="fas fa-question-circle text-lg"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- 主要内容 -->
+    <main class="container mx-auto px-4 py-6">
+        <!-- 积分总览 -->
+        <section class="mb-8">
+            <div class="points-card p-6">
+                <div class="flex flex-col md:flex-row items-center justify-between">
+                    <div class="flex items-center space-x-4 mb-4 md:mb-0">
+                        <div class="relative">
+                            <div class="w-20 h-20 bg-gradient-to-br from-yellow-400 to-amber-500 rounded-full flex items-center justify-center">
+                                <i class="fas fa-coins text-white text-3xl coin-spin"></i>
+                            </div>
+                            <div class="absolute -top-2 -right-2 w-10 h-10 bg-red-500 rounded-full flex items-center justify-center text-white font-bold">
+                                VIP
+                            </div>
+                        </div>
+                        <div>
+                            <h2 class="text-2xl font-bold text-gray-900">我的积分</h2>
+                            <div class="flex items-center space-x-2">
+                                <span class="text-4xl font-bold text-green-600" id="total-points">8,650</span>
+                                <span class="text-gray-500">积分</span>
+                            </div>
+                            <p class="text-sm text-gray-600">今日已获得: <span class="text-green-600 font-semibold">+320</span> 积分</p>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center">
+                        <div class="mb-2">
+                            <div class="text-lg font-semibold text-gray-900">积分等级: <span class="text-green-600">黄金会员</span></div>
+                            <div class="text-sm text-gray-500">距离铂金会员还需 1,350 积分</div>
+                        </div>
+                        <div class="w-64 bg-gray-200 rounded-full h-3">
+                            <div class="progress-bar h-3 rounded-full" style="width: 87%"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 积分统计 -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
+                    <div class="text-center p-4 bg-green-50 rounded-xl">
+                        <div class="text-2xl font-bold text-green-600">+320</div>
+                        <div class="text-sm text-gray-600">今日获得</div>
+                    </div>
+                    <div class="text-center p-4 bg-blue-50 rounded-xl">
+                        <div class="text-2xl font-bold text-blue-600">2,150</div>
+                        <div class="text-sm text-gray-600">本周获得</div>
+                    </div>
+                    <div class="text-center p-4 bg-purple-50 rounded-xl">
+                        <div class="text-2xl font-bold text-purple-600">8,240</div>
+                        <div class="text-sm text-gray-600">本月获得</div>
+                    </div>
+                    <div class="text-center p-4 bg-amber-50 rounded-xl">
+                        <div class="text-2xl font-bold text-amber-600">28</div>
+                        <div class="text-sm text-gray-600">连续签到</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 快速赚取积分 -->
+        <section class="mb-8">
+            <div class="bg-white rounded-2xl shadow-lg p-6">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-xl font-bold text-gray-900">🚀 快速赚取积分</h3>
+                    <span class="text-sm text-gray-500">每日刷新</span>
+                </div>
+                
+                <div class="space-y-4">
+                    <!-- 任务1 -->
+                    <div class="task-card bg-white border border-gray-200 rounded-xl p-4">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-4">
+                                <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-book-open text-green-600 text-xl"></i>
+                                </div>
+                                <div>
+                                    <div class="font-semibold text-gray-900">完成今日学习任务</div>
+                                    <div class="text-sm text-gray-600">学习任意课程章节</div>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-lg font-bold text-green-600">+50</div>
+                                <button onclick="completeTask('learn')" class="mt-2 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition text-sm">
+                                    去完成
+                                </button>
+                            </div>
+                        </div>
+                        <div class="mt-3 flex items-center text-sm text-gray-500">
+                            <i class="fas fa-clock mr-2"></i>
+                            <span>剩余时间: 3小时</span>
+                            <span class="mx-2">•</span>
+                            <i class="fas fa-users mr-2"></i>
+                            <span>2,345人已完成</span>
+                        </div>
+                    </div>
+                    
+                    <!-- 任务2 -->
+                    <div class="task-card bg-white border border-gray-200 rounded-xl p-4">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-4">
+                                <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-check-circle text-blue-600 text-xl"></i>
+                                </div>
+                                <div>
+                                    <div class="font-semibold text-gray-900">通过章节测试</div>
+                                    <div class="text-sm text-gray-600">得分90%以上</div>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-lg font-bold text-blue-600">+80</div>
+                                <button onclick="completeTask('quiz')" class="mt-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition text-sm">
+                                    去测试
+                                </button>
+                            </div>
+                        </div>
+                        <div class="mt-3 flex items-center text-sm text-gray-500">
+                            <i class="fas fa-award mr-2"></i>
+                            <span>额外奖励: 连续3天 +200积分</span>
+                        </div>
+                    </div>
+                    
+                    <!-- 任务3 -->
+                    <div class="task-card bg-white border border-gray-200 rounded-xl p-4">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-4">
+                                <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-comments text-purple-600 text-xl"></i>
+                                </div>
+                                <div>
+                                    <div class="font-semibold text-gray-900">分享学习心得</div>
+                                    <div class="text-sm text-gray-600">在社区发表优质内容</div>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-lg font-bold text-purple-600">+60</div>
+                                <button onclick="completeTask('share')" class="mt-2 px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition text-sm">
+                                    去分享
+                                </button>
+                            </div>
+                        </div>
+                        <div class="mt-3 flex items-center text-sm text-gray-500">
+                            <i class="fas fa-star mr-2"></i>
+                            <span>优质内容额外 +20积分</span>
+                        </div>
+                    </div>
+                    
+                    <!-- 任务4 -->
+                    <div class="task-card bg-white border border-gray-200 rounded-xl p-4">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-4">
+                                <div class="w-12 h-12 bg-amber-100 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-handshake text-amber-600 text-xl"></i>
+                                </div>
+                                <div>
+                                    <div class="font-semibold text-gray-900">帮助新志愿者</div>
+                                    <div class="text-sm text-gray-600">解答3个问题</div>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-lg font-bold text-amber-600">+100</div>
+                                <button onclick="completeTask('help')" class="mt-2 px-4 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition text-sm">
+                                    去帮助
+                                </button>
+                            </div>
+                        </div>
+                        <div class="mt-3 flex items-center text-sm text-gray-500">
+                            <i class="fas fa-heart mr-2"></i>
+                            <span>获得感谢额外 +30积分</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-6 text-center">
+                    <button onclick="showAllTasks()" class="px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl hover:shadow-lg transition">
+                        <i class="fas fa-list mr-2"></i>
+                        查看全部任务 (24个)
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 积分规则 -->
+        <section class="mb-8">
+            <div class="bg-white rounded-2xl shadow-lg p-6">
+                <h3 class="text-xl font-bold text-gray-900 mb-6">📜 积分规则说明</h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-gray-50 rounded-xl p-5">
+                        <h4 class="font-bold text-gray-900 mb-3 flex items-center">
+                            <i class="fas fa-plus-circle text-green-500 mr-2"></i>
+                            积分获取方式
+                        </h4>
+                        <ul class="space-y-2">
+                            <li class="flex items-center text-sm">
+                                <i class="fas fa-check text-green-500 mr-2"></i>
+                                <span><strong>学习课程:</strong> 每章节 +10积分</span>
+                            </li>
+                            <li class="flex items-center text-sm">
+                                <i class="fas fa-check text-green-500 mr-2"></i>
+                                <span><strong>通过测试:</strong> 每次 +20-80积分</span>
+                            </li>
+                            <li class="flex items-center text-sm">
+                                <i class="fas fa-check text-green-500 mr-2"></i>
+                                <span><strong>每日签到:</strong> 连续签到有加成</span>
+                            </li>
+                            <li class="flex items-center text-sm">
+                                <i class="fas fa-check text-green-500 mr-2"></i>
+                                <span><strong>社区贡献:</strong> 分享、帮助他人</span>
+                            </li>
+                            <li class="flex items-center text-sm">
+                                <i class="fas fa-check text-green-500 mr-2"></i>
+                                <span><strong>活动参与:</strong> 参加平台活动</span>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <div class="bg-gray-50 rounded-xl p-5">
+                        <h4 class="font-bold text-gray-900 mb-3 flex items-center">
+                            <i class="fas fa-minus-circle text-red-500 mr-2"></i>
+                            积分使用规则
+                        </h4>
+                        <ul class="space-y-2">
+                            <li class="flex items-center text-sm">
+                                <i class="fas fa-check text-red-500 mr-2"></i>
+                                <span><strong>兑换商品:</strong> 积分商城实物/虚拟商品</span>
+                            </li>
+                            <li class="flex items-center text-sm">
+                                <i class="fas fa-check text-red-500 mr-2"></i>
+                                <span><strong>解锁特权:</strong> 高级课程、专属功能</span>
+                            </li>
+                            <li class="flex items-center text-sm">
+                                <i class="fas fa-check text-red-500 mr-2"></i>
+                                <span><strong>参与抽奖:</strong> 使用积分参与抽奖活动</span>
+                            </li>
+                            <li class="flex items-center text-sm">
+                                <i class="fas fa-check text-red-500 mr-2"></i>
+                                <span><strong>捐赠公益:</strong> 积分捐赠给公益项目</span>
+                            </li>
+                            <li class="flex items-center text-sm">
+                                <i class="fas fa-check text-red-500 mr-2"></i>
+                                <span><strong>兑换优惠:</strong> 合作商家优惠券</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="mt-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-5">
+                    <h4 class="font-bold text-gray-900 mb-3 flex items-center">
+                        <i class="fas fa-exclamation-circle text-blue-500 mr-2"></i>
+                        重要提醒
+                    </h4>
+                    <div class="text-sm text-gray-700 space-y-2">
+                        <p>1. 积分有效期为获得之日起12个月，过期未使用的积分将自动清零。</p>
+                        <p>2. 禁止通过不正当手段获取积分，一经发现将扣除所有积分并封禁账号。</p>
+                        <p>3. 积分不可转让、不可兑换现金，仅限本人在平台内使用。</p>
+                        <p>4. 平台保留对积分规则的解释权和修改权，重大变更将提前通知。</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 积分等级 -->
+        <section class="mb-8">
+            <div class="bg-white rounded-2xl shadow-lg p-6">
+                <h3 class="text-xl font-bold text-gray-900 mb-6">🏅 积分等级体系</h3>
+                
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead>
+                            <tr class="bg-gray-50">
+                                <th class="py-3 px-4 text-left">等级</th>
+                                <th class="py-3 px-4 text-left">所需积分</th>
+                                <th class="py-3 px-4 text-left">特权</th>
+                                <th class="py-3 px-4 text-left">积分加成</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="border-b border-gray-200">
+                                <td class="py-3 px-4">
+                                    <div class="flex items-center">
+                                        <div class="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center mr-2">
+                                            <i class="fas fa-user text-white text-xs"></i>
+                                        </div>
+                                        <span>普通会员</span>
+                                    </div>
+                                </td>
+                                <td class="py-3 px-4">0-999</td>
+                                <td class="py-3 px-4">基础功能</td>
+                                <td class="py-3 px-4 text-green-600">+0%</td>
+                            </tr>
+                            <tr class="border-b border-gray-200">
+                                <td class="py-3 px-4">
+                                    <div class="flex items-center">
+                                        <div class="w-8 h-8 bg-green-300 rounded-full flex items-center justify-center mr-2">
+                                            <i class="fas fa-leaf text-white text-xs"></i>
+                                        </div>
+                                        <span>青铜会员</span>
+                                    </div>
+                                </td>
+                                <td class="py-3 px-4">1,000-2,999</td>
+                                <td class="py-3 px-4">优先客服</td>
+                                <td class="py-3 px-4 text-green-600">+5%</td>
+                            </tr>
+                            <tr class="border-b border-gray-200">
+                                <td class="py-3 px-4">
+                                    <div class="flex items-center">
+                                        <div class="w-8 h-8 bg-blue-300 rounded-full flex items-center justify-center mr-2">
+                                            <i class="fas fa-star text-white text-xs"></i>
+                                        </div>
+                                        <span>白银会员</span>
+                                    </div>
+                                </td>
+                                <td class="py-3 px-4">3,000-5,999</td>
+                                <td class="py-3 px-4">专属课程</td>
+                                <td class="py-3 px-4 text-green-600">+8%</td>
+                            </tr>
+                            <tr class="border-b border-gray-200 bg-green-50">
+                                <td class="py-3 px-4">
+                                    <div class="flex items-center">
+                                        <div class="w-8 h-8 bg-yellow-400 rounded-full flex items-center justify-center mr-2">
+                                            <i class="fas fa-crown text-white text-xs"></i>
+                                        </div>
+                                        <span class="font-bold">黄金会员</span>
+                                    </div>
+                                </td>
+                                <td class="py-3 px-4 font-bold">6,000-8,999</td>
+                                <td class="py-3 px-4 font-bold">商城折扣</td>
+                                <td class="py-3 px-4 text-green-600 font-bold">+12%</td>
+                            </tr>
+                            <tr class="border-b border-gray-200">
+                                <td class="py-3 px-4">
+                                    <div class="flex items-center">
+                                        <div class="w-8 h-8 bg-purple-300 rounded-full flex items-center justify-center mr-2">
+                                            <i class="fas fa-gem text-white text-xs"></i>
+                                        </div>
+                                        <span>铂金会员</span>
+                                    </div>
+                                </td>
+                                <td class="py-3 px-4">9,000-14,999</td>
+                                <td class="py-3 px-4">活动优先</td>
+                                <td class="py-3 px-4 text-green-600">+15%</td>
+                            </tr>
+                            <tr class="border-b border-gray-200">
+                                <td class="py-3 px-4">
+                                    <div class="flex items-center">
+                                        <div class="w-8 h-8 bg-red-300 rounded-full flex items-center justify-center mr-2">
+                                            <i class="fas fa-fire text-white text-xs"></i>
+                                        </div>
+                                        <span>钻石会员</span>
+                                    </div>
+                                </td>
+                                <td class="py-3 px-4">15,000+</td>
+                                <td class="py-3 px-4">所有特权</td>
+                                <td class="py-3 px-4 text-green-600">+20%</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="mt-6 p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl">
+                    <div class="flex items-center">
+                        <i class="fas fa-lightbulb text-green-500 text-xl mr-3"></i>
+                        <div>
+                            <div class="font-semibold text-gray-900">升级小贴士</div>
+                            <div class="text-sm text-gray-600">保持每日签到和任务完成，快速提升会员等级，享受更多特权！</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 行动按钮 -->
+        <section class="mb-16">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <a href="#" onclick="goToPointsMall()" class="block p-6 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-2xl shadow-lg hover:shadow-xl transition text-center">
+                    <i class="fas fa-shopping-cart text-2xl mb-3"></i>
+                    <div class="text-xl font-bold mb-2">积分商城</div>
+                    <div class="text-sm opacity-90">兑换精美礼品和特权</div>
+                </a>
+                
+                <a href="level-system.html" class="block p-6 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-2xl shadow-lg hover:shadow-xl transition text-center">
+                    <i class="fas fa-trophy text-2xl mb-3"></i>
+                    <div class="text-xl font-bold mb-2">等级系统</div>
+                    <div class="text-sm opacity-90">查看成长进度和特权</div>
+                </a>
+            </div>
+        </section>
+    </main>
+
+    <!-- 底部导航 -->
+    <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 safe-bottom">
+        <div class="container mx-auto px-4">
+            <div class="flex justify-around py-3">
+                <a href="home-dashboard.html" class="flex flex-col items-center text-gray-600 hover:text-green-500">
+                    <i class="fas fa-home text-xl"></i>
+                    <span class="text-xs mt-1">首页</span>
+                </a>
+                <a href="course-list.html" class="flex flex-col items-center text-gray-600 hover:text-green-500">
+                    <i class="fas fa-book-open text-xl"></i>
+                    <span class="text-xs mt-1">课程</span>
+                </a>
+                <a href="level-system.html" class="flex flex-col items-center text-gray-600 hover:text-green-500">
+                    <i class="fas fa-trophy text-xl"></i>
+                    <span class="text-xs mt-1">等级</span>
+                </a>
+                <a href="points-system.html" class="flex flex-col items-center text-green-500">
+                    <i class="fas fa-coins text-xl"></i>
+                    <span class="text-xs mt-1">积分</span>
+                </a>
+                <a href="#" onclick="showProfile()" class="flex flex-col items-center text-gray-600 hover:text-green-500">
+                    <i class="fas fa-user text-xl"></i>
+                    <span class="text-xs mt-1">我的</span>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- JavaScript -->
+    <script>
+        // 显示积分历史
+        function showPointsHistory() {
+            showToast('📊 积分历史记录正在加载...', 'info');
+            // 实际开发中这里应该跳转到积分历史页面
+            // window.location.href = 'points-history.html';
+        }
+        
+        // 显示帮助
+        function showHelp() {
+            showToast('❓ 打开积分系统帮助文档', 'info');
+            // 实际开发中这里应该打开帮助文档
+        }
+        
+        // 完成任务
+        function completeTask(taskType) {
+            const tasks = {
+                'learn': { name: '今日学习任务', points: 50 },
+                'quiz': { name: '章节测试', points: 80 },
+                'share': { name: '分享学习心得', points: 60 },
+                'help': { name: '帮助新志愿者', points: 100 }
+            };
+            
+            const task = tasks[taskType];
+            if (!task) return;
+            
+            // 模拟完成任务
+            const totalPointsElement = document.getElementById('total-points');
+            let currentPoints = parseInt(totalPointsElement.textContent.replace(/,/g, ''));
+            currentPoints += task.points;
+            
+            // 格式化数字
+            totalPointsElement.textContent = currentPoints.toLocaleString();
+            
+            // 添加动画效果
+            totalPointsElement.classList.add('points-gain');
+            setTimeout(() => {
+                totalPointsElement.classList.remove('points-gain');
+            }, 500);
+            
+            showToast(`✅ 已完成 ${task.name}，获得 ${task.points} 积分！`, 'success');
+            
+            // 标记任务为已完成
+            const taskButton = event.target;
+            const taskCard = taskButton.closest('.task-card');
+            if (taskCard) {
+                taskCard.classList.add('completed');
+                taskButton.disabled = true;
+                taskButton.textContent = '已完成';
+                taskButton.classList.remove('bg-green-500', 'hover:bg-green-600');
+                taskButton.classList.add('bg-gray-400', 'cursor-not-allowed');
+            }
+        }
+        
+        // 显示所有任务
+        function showAllTasks() {
+            showToast('📋 正在加载全部任务列表...', 'info');
+            // 实际开发中这里应该跳转到任务列表页面
+            // window.location.href = 'tasks-list.html';
+        }
+        
+        // 前往积分商城
+        function goToPointsMall() {
+            showToast('🛒 正在跳转积分商城...', 'info');
+            // 实际开发中这里应该跳转到积分商城页面
+            // window.location.href = 'points-mall.html';
+        }
+        
+        // 显示个人资料
+        function showProfile() {
+            showToast('👤 个人资料页面正在开发中...', 'info');
+            // 实际开发中这里应该跳转到个人资料页面
+            // window.location.href = 'profile.html';
+        }
+        
+        // 显示Toast通知
+        function showToast(message, type = 'info') {
+            // 移除现有的toast
+            const existingToast = document.getElementById('custom-toast');
+            if (existingToast) {
+                existingToast.remove();
+            }
+            
+            // 创建新的toast
+            const toast = document.createElement('div');
+            toast.id = 'custom-toast';
+            toast.className = `fixed top-20 left-1/2 transform -translate-x-1/2 z-50 px-6 py-3 rounded-lg shadow-lg text-white font-medium transition-all duration-300 ${
+                type === 'success' ? 'bg-green-500' :
+                type === 'error' ? 'bg-red-500' :
+                type === 'warning' ? 'bg-yellow-500' : 'bg-blue-500'
+            }`;
+            toast.textContent = message;
+            
+            document.body.appendChild(toast);
+            
+            // 3秒后自动消失
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translate(-50%, -20px)';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+        
+        // 页面加载完成后的初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 初始化硬币旋转动画
+            const coin = document.querySelector('.coin-spin');
+            if (coin) {
+                // 鼠标悬停时暂停动画
+                coin.addEventListener('mouseenter', () => {
+                    coin.style.animationPlayState = 'paused';
+                });
+                
+                coin.addEventListener('mouseleave', () => {
+                    coin.style.animationPlayState = 'running';
+                });
+            }
+            
+            // 初始化任务卡片点击效果
+            const taskCards = document.querySelectorAll('.task-card:not(.completed)');
+            taskCards.forEach(card => {
+                card.addEventListener('click', function(e) {
+                    if (!e.target.closest('button')) {
+                        this.style.transform = 'scale(0.98)';
+                        setTimeout(() => {
+                            this.style.transform = '';
+                        }, 150);
+                    }
+                });
+            });
+            
+            // 显示欢迎消息
+            setTimeout(() => {
+                showToast('🎉 欢迎使用积分系统！完成任务赚取积分，兑换精彩好礼！', 'info');
+            }, 1000);
+        });
+        
+        // 键盘快捷键支持
+        document.addEventListener('keydown', function(e) {
+            // Ctrl + P 聚焦到积分相关功能
+            if (e.ctrlKey && e.key === 'p') {
+                e.preventDefault();
+                showToast('按 Ctrl+P 可以快速查看积分任务', 'info');
+            }
+            
+            // 数字键1-4快速完成任务
+            if (e.key >= '1' && e.key <= '4') {
+                const taskIndex = parseInt(e.key) - 1;
+                const taskButtons = document.querySelectorAll('.task-card button');
+                if (taskButtons[taskIndex] && !taskButtons[taskIndex].disabled) {
+                    taskButtons[taskIndex].click();
+                }
+            }
+        });
+        
+        // 页面可见性变化处理
+        document.addEventListener('visibilitychange', function() {
+            if (!document.hidden) {
+                // 页面重新可见时，可以刷新积分数据
+                showToast('积分数据已刷新', 'info');
+            }
+        });
+    </script>
+
+    <!-- 深色模式样式 -->
+    <style>
+        .dark body {
+            background: linear-gradient(135deg, #064e3b 0%, #022c22 100%);
+            color: #e2e8f0;
+        }
+        
+        .dark .bg-white {
+            background-color: #1e293b;
+            color: #e2e8f0;
+        }
+        
+        .dark .text-gray-900 {
+            color: #f1f5f9;
+        }
+        
+        .dark .text-gray-600,
+        .dark .text-gray-500 {
+            color: #94a3b8;
+        }
+        
+        .dark .border-gray-200 {
+            border-color: #334155;
+        }
+        
+        .dark .bg-gray-50 {
+            background-color: #334155;
+        }
+        
+        .dark .points-card {
+            background: linear-gradient(135deg, #1e293b, #0f172a);
+        }
+        
+        .dark .task-card:hover {
+            background-color: #334155;
+        }
+        
+        .dark .bg-green-50 { background-color: #064e3b; }
+        .dark .bg-blue-50 { background-color: #1e3a8a; }
+        .dark .bg-purple-50 { background-color: #4c1d95; }
+        .dark .bg-amber-50 { background-color: #78350f; }
+        
+        .dark nav {
+            background-color: #1e293b;
+            border-color: #334155;
+        }
+        
+        .dark table {
+            background-color: #1e293b;
+        }
+        
+        .dark table thead {
+            background-color: #0f172a;
+        }
+        
+        .dark table tbody tr {
+            border-color: #334155;
+        }
+        
+        .dark .bg-gradient-to-r {
+            background: linear-gradient(to right, #1e293b, #334155);
+        }
+    </style>
+</body>
+</html>

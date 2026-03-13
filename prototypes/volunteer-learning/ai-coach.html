@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AI教练 - 知行中国志愿者学习端</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* 自定义样式 */
+        :root {
+            --primary: #8b5cf6;
+            --primary-dark: #7c3aed;
+            --secondary: #10b981;
+            --accent: #f59e0b;
+            --light: #f8fafc;
+            --dark: #1e293b;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+            min-height: 100vh;
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+        
+        /* AI消息样式 */
+        .ai-message {
+            background: linear-gradient(135deg, #f3f4f6, #e5e7eb);
+            border-radius: 18px 18px 18px 4px;
+            max-width: 85%;
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        .user-message {
+            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+            color: white;
+            border-radius: 18px 18px 4px 18px;
+            max-width: 85%;
+            margin-left: auto;
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* 打字动画 */
+        @keyframes typing {
+            0% { width: 0; }
+            100% { width: 100%; }
+        }
+        
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            background: #f3f4f6;
+            border-radius: 18px 18px 18px 4px;
+            width: fit-content;
+        }
+        
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background: #9ca3af;
+            border-radius: 50%;
+            margin: 0 2px;
+            animation: typingDot 1.4s infinite ease-in-out;
+        }
+        
+        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+        
+        @keyframes typingDot {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1); }
+        }
+        
+        /* 功能卡片 */
+        .feature-card {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+        }
+        
+        /* 建议卡片 */
+        .suggestion-chip {
+            display: inline-block;
+            padding: 8px 16px;
+            background: #f3f4f6;
+            border-radius: 20px;
+            margin: 4px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .suggestion-chip:hover {
+            background: #e5e7eb;
+            transform: scale(1.05);
+        }
+        
+        /* 安全区域适配 */
+        .safe-bottom {
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+        
+        /* 响应式调整 */
+        @media (max-width: 640px) {
+            .ai-message, .user-message {
+                max-width: 90%;
+            }
+            
+            .feature-card {
+                margin-bottom: 1rem;
+            }
+        }
+        
+        /* 滚动条样式 */
+        .chat-container::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .chat-container::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 3px;
+        }
+        
+        .chat-container::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 3px;
+        }
+        
+        .chat-container::-webkit-scrollbar-thumb:hover {
+            background: #a1a1a1;
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+    <!-- 顶部导航 -->
+    <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-gray-200">
+        <div class="container mx-auto px-4 py-3">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <a href="../index.html" class="text-gray-600 hover:text-gray-900">
+                        <i class="fas fa-arrow-left text-lg"></i>
+                    </a>
+                    <div>
+                        <h1 class="text-xl font-bold text-gray-900">AI教练</h1>
+                        <p class="text-sm text-gray-500">您的个性化学习助手</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button onclick="toggleTheme()" class="p-2 text-gray-600 hover:text-gray-900">
+                        <i class="fas fa-moon text-lg"></i>
+                    </button>
+                    <button onclick="showSettings()" class="p-2 text-gray-600 hover:text-gray-900">
+                        <i class="fas fa-cog text-lg"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- 主要内容 -->
+    <main class="container mx-auto px-4 py-6">
+        <!-- AI教练简介 -->
+        <section class="mb-8">
+            <div class="bg-white rounded-2xl shadow-lg p-6">
+                <div class="flex items-center mb-6">
+                    <div class="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center mr-4">
+                        <i class="fas fa-robot text-white text-2xl"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-900">小智教练</h2>
+                        <p class="text-gray-600">您的专属认知症照护学习助手</p>
+                        <div class="flex items-center mt-2">
+                            <span class="px-3 py-1 bg-green-100 text-green-800 text-sm rounded-full mr-2">
+                                <i class="fas fa-circle text-xs mr-1"></i> 在线
+                            </span>
+                            <span class="text-sm text-gray-500">已帮助 1,234 位志愿者</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                    <div class="text-center p-4 bg-purple-50 rounded-xl">
+                        <i class="fas fa-graduation-cap text-purple-600 text-xl mb-2"></i>
+                        <div class="font-semibold">个性化学习</div>
+                        <div class="text-sm text-gray-600">根据您的进度定制</div>
+                    </div>
+                    <div class="text-center p-4 bg-blue-50 rounded-xl">
+                        <i class="fas fa-question-circle text-blue-600 text-xl mb-2"></i>
+                        <div class="font-semibold">24/7答疑</div>
+                        <div class="text-sm text-gray-600">随时解答您的疑问</div>
+                    </div>
+                    <div class="text-center p-4 bg-green-50 rounded-xl">
+                        <i class="fas fa-chart-line text-green-600 text-xl mb-2"></i>
+                        <div class="font-semibold">进度跟踪</div>
+                        <div class="text-sm text-gray-600">智能分析学习效果</div>
+                    </div>
+                </div>
+                
+                <div class="text-sm text-gray-600">
+                    <p>🤖 <strong>小智教练</strong> 是基于人工智能的认知症照护学习助手，可以帮助您：</p>
+                    <ul class="mt-2 space-y-1">
+                        <li><i class="fas fa-check text-green-500 mr-2"></i>解答认知症照护相关问题</li>
+                        <li><i class="fas fa-check text-green-500 mr-2"></i>推荐个性化学习路径</li>
+                        <li><i class="fas fa-check text-green-500 mr-2"></i>分析学习进度和薄弱环节</li>
+                        <li><i class="fas fa-check text-green-500 mr-2"></i>提供实践场景模拟练习</li>
+                        <li><i class="fas fa-check text-green-500 mr-2"></i>分享最新研究和发展动态</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- 聊天界面 -->
+        <section class="mb-8">
+            <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+                <!-- 聊天标题 -->
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center mr-3">
+                                <i class="fas fa-robot text-white"></i>
+                            </div>
+                            <div>
+                                <div class="font-bold text-gray-900">与小智教练对话</div>
+                                <div class="text-xs text-gray-500">响应时间: < 2秒</div>
+                            </div>
+                        </div>
+                        <button onclick="clearChat()" class="text-sm text-gray-500 hover:text-gray-700">
+                            <i class="fas fa-trash-alt mr-1"></i> 清空对话
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- 聊天内容区域 -->
+                <div class="chat-container h-96 overflow-y-auto p-6" id="chat-messages">
+                    <!-- 初始欢迎消息 -->
+                    <div class="ai-message p-4 mb-4">
+                        <div class="flex items-start">
+                            <div class="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center mr-3 flex-shrink-0">
+                                <i class="fas fa-robot text-white text-sm"></i>
+                            </div>
+                            <div>
+                                <div class="font-medium text-gray-900 mb-1">小智教练</div>
+                                <div class="text-gray-700">
+                                    您好！我是您的AI学习教练小智。😊
+                                    <br><br>
+                                    我可以帮助您：
+                                    <ul class="mt-2 space-y-1">
+                                        <li>• 解答认知症照护相关问题</li>
+                                        <li>• 推荐适合您的学习内容</li>
+                                        <li>• 分析您的学习进度</li>
+                                        <li>• 提供实践建议和技巧</li>
+                                    </ul>
+                                    <br>
+                                    请问有什么可以帮您的吗？
+                                </div>
+                                <div class="text-xs text-gray-500 mt-2">刚刚</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 用户示例消息 -->
+                    <div class="user-message p-4 mb-4">
+                        <div class="flex items-start justify-end">
+                            <div class="text-right mr-3">
+                                <div class="font-medium text-white mb-1">您</div>
+                                <div class="text-white">我想了解认知症患者的行为管理技巧</div>
+                                <div class="text-xs text-white/80 mt-2">1分钟前</div>
+                            </div>
+                            <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-full flex items-center justify-center flex-shrink-0">
+                                <i class="fas fa-user text-white text-sm"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- AI回复示例 -->
+                    <div class="ai-message p-4 mb-4">
+                        <div class="flex items-start">
+                            <div class="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center mr-3 flex-shrink-0">
+                                <i class="fas fa-robot text-white text-sm"></i>
+                            </div>
+                            <div>
+                                <div class="font-medium text-gray-900 mb-1">小智教练</div>
+                                <div class="text-gray-700">
+                                    很好的问题！认知症患者的行为管理确实很重要。以下是一些关键技巧：
+                                    <br><br>
+                                    <strong>1. 理解行为背后的原因</strong><br>
+                                    • 行为可能是未满足需求的表达（如疼痛、饥饿）<br>
+                                    • 环境因素（噪音、光线）可能引发不安<br>
+                                    • 沟通困难导致的挫败感
+                                    <br><br>
+                                    <strong>2. 有效的沟通策略</strong><br>
+                                    • 使用简单、清晰的语言<br>
+                                    • 保持眼神接触和温和的语气<br>
+                                    • 给予足够的时间回应
+                                    <br><br>
+                                    <strong>3. 环境调整</strong><br>
+                                    • 创建安全、熟悉的环境<br>
+                                    • 减少刺激和干扰<br>
+                                    • 建立规律的日常活动
+                                    <br><br>
+                                    需要我详细解释某个方面吗？
+                                </div>
+                                <div class="text-xs text-gray-500 mt-2">刚刚</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 快速建议 -->
+                <div class="px-6 py-4 border-t border-gray-200">
+                    <div class="text-sm text-gray-600 mb-3">快速提问：</div>
+                    <div class="flex flex-wrap">
+                        <div class="suggestion-chip" onclick="sendSuggestion('如何应对认知症患者的攻击行为？')">
+                            攻击行为应对
+                        </div>
+                        <div class="suggestion-chip" onclick="sendSuggestion('推荐适合新志愿者的学习路径')">
+                            学习路径推荐
+                        </div>
+                        <div class="suggestion-chip" onclick="sendSuggestion('认知症沟通技巧有哪些？')">
+                            沟通技巧
+                        </div>
+                        <div class="suggestion-chip" onclick="sendSuggestion('分析我的学习进度')">
+                            进度分析
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 输入区域 -->
+                <div class="px-6 py-4 border-t border-gray-200 bg-gray-50">
+                    <div class="flex items-center">
+                        <input type="text" 
+                               id="message-input"
+                               placeholder="输入您的问题..." 
+                               class="flex-grow px-4 py-3 bg-white border border-gray-300 rounded-l-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                               onkeypress="handleKeyPress(event)">
+                        <button onclick="sendMessage()" 
+                                class="px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-r-xl hover:opacity-90 transition">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                    <div class="text-xs text-gray-500 mt-2">
+                        <i class="fas fa-info-circle mr-1"></i> 小智教练基于最新认知症照护指南和最佳实践提供建议
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- AI教练功能 -->
+        <section class="mb-8">
+            <div class="bg-white rounded-2xl shadow-lg p-6">
+                <h3 class="text-xl font-bold text-gray-900 mb-6">🎯 AI教练核心功能</h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- 功能1 -->
+                    <div class="feature-card">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center mr-4">
+                                <i class="fas fa-brain text-white text-xl"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-gray-900">智能问答</h4>
+                                <p class="text-sm text-gray-600">解答认知症照护相关问题</p>
+                            </div>
+                        </div>
+                        <ul class="space-y-2 text-sm text-gray-700">
+                            <li><i class="fas fa-check text-green-500 mr-2"></i>基于最新研究和指南</li>
+                            <li><i class="fas fa-check text-green-500 mr-2"></i>提供具体操作建议</li>
+                            <li><i class="fas fa-check text-green-500 mr-2"></i>支持多轮深度对话</li>
+                            <li><i class="fas fa-check text-green-500 mr-2"></i>引用权威来源</li>
+                        </ul>
+                        <button onclick="startQASession()" class="mt-4 w-full py-2 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition">
+                            开始问答
+                        </button>
+                    </div>
+                    
+                    <!-- 功能2 -->
+                    <div class="feature-card">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-lg flex items-center justify-center mr-4">
+                                <i class="fas fa-road text-white text-xl"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-gray-900">学习路径规划</h4>
+                                <p class="text-sm text-gray-600">个性化学习路线推荐</p>
+                            </div>
+                        </div>
+                        <ul class="space-y-2 text-sm text-gray-700">
+                            <li><i class="fas fa-check text-green-500 mr-2"></i>根据您的水平和目标定制</li>
+                            <li><i class="fas fa-check text-green-500 mr-2"></i>动态调整学习进度</li>
+                            <li><i class="fas fa-check text-green-500 mr-2"></i>推荐相关课程和资源</li>
+                            <li><i class="fas fa-check text-green-500 mr-500 mr-2"></i>设置学习里程碑</li>
+                        </ul>
+                        <button onclick="planLearningPath()" class="mt-4 w-full py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition">
+                            规划路径
+                        </button>
+                    </div>
+                    
+                    <!-- 功能3 -->
+                    <div class="feature-card">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-500 rounded-lg flex items-center justify-center mr-4">
+                                <i class="fas fa-chart-bar text-white text-xl"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-gray-900">进度分析</h4>
+                                <p class="text-sm text-gray-600">智能学习效果评估</p>
+                            </div>
+                        </div>
+                        <ul class="space-y-2 text-sm text-gray-700">
+                            <li><i class="fas fa-check text-green-500 mr-2"></i>分析学习数据</li>
+                            <li><i class="fas fa-check text-green-500 mr-2"></i>识别薄弱环节</li>
+                            <li><i class="fas fa-check text-green-500 mr-2"></i>提供改进建议</li>
+                            <li><i class="fas fa-check text-green-500 mr-2"></i>生成学习报告</li>
+                        </ul>
+                        <button onclick="analyzeProgress()" class="mt-4 w-full py-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition">
+                            分析进度
+                        </button>
+                    </div>
+                    
+                    <!-- 功能4 -->
+                    <div class="feature-card">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 bg-gradient-to-br from-amber-500 to-orange-500 rounded-lg flex items-center justify-center mr-4">
+                                <i class="fas fa-vial text-white text-xl"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-gray-900">场景模拟</h4>
+                                <p class="text-sm text-gray-600">实践场景模拟练习</p>
+                            </div>
+                        </div>
+                        <ul class="space-y-2 text-sm text-gray-700">
+                            <li><i class="fas fa-check text-green-500 mr-2"></i>真实案例模拟</li>
+                            <li><i class="fas fa-check text-green-500 mr-2"></i>即时反馈和指导</li>
+                            <li><i class="fas fa-check text-green-500 mr-2"></i>多种难度级别</li>
+                            <li><i class="fas fa-check text-green-500 mr-2"></i>记录练习历史</li>
+                        </ul>
+                        <button onclick="startSimulation()" class="mt-4 w-full py-2 bg-amber-100 text-amber-700 rounded-lg hover:bg-amber-200 transition">
+                            开始模拟
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 学习统计 -->
+        <section class="mb-8">
+            <div class="bg-white rounded-2xl shadow-lg p-6">
+                <h3 class="text-xl font-bold text-gray-900 mb-6">📊 AI教练学习统计</h3>
+                
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                    <div class="text-center p-4 bg-purple-50 rounded-xl">
+                        <div class="text-3xl font-bold text-purple-600">42</div>
+                        <div class="text-sm text-gray-600">咨询次数</div>
+                    </div>
+                    <div class="text-center p-4 bg-blue-50 rounded-xl">
+                        <div class="text-3xl font-bold text-blue-600">18</div>
+                        <div class="text-sm text-gray-600">完成模拟</div>
+                    </div>
+                    <div class="text-center p-4 bg-green-50 rounded-xl">
+                        <div class="text-3xl font-bold text-green-600">92%</div>
+                        <div class="text-sm text-gray-600">问题解决率</div>
+                    </div>
+                    <div class="text-center p-4 bg-amber-50 rounded-xl">
+                        <div class="text-3xl font-bold text-amber-600">4.8</div>
+                        <div class="text-sm text-gray-600">平均评分</div>
+                    </div>
+                </div>
+                
+                <div class="bg-gray-50 rounded-xl p-5">
+                    <h4 class="font-bold text-gray-900 mb-3">🏆 最近成就</h4>
+                    <div class="space-y-3">
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 bg-yellow-100 rounded-full flex items-center justify-center mr-3">
+                                <i class="fas fa-trophy text-yellow-600"></i>
+                            </div>
+                            <div>
+                                <div class="font-medium text-gray-900">连续7天使用AI教练</div>
+                                <div class="text-sm text-gray-600">获得"勤奋学习者"徽章</div>
+                            </div>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center mr-3">
+                                <i class="fas fa-star text-green-600"></i>
+                            </div>
+                            <div>
+                                <div class="font-medium text-gray-900">完成10次场景模拟</div>
+                                <div class="text-sm text-gray-600">实践能力显著提升</div>
+                            </div>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+                                <i class="fas fa-lightbulb text-blue-600"></i>
+                            </div>
+                            <div>
+                                <div class="font-medium text-gray-900">提出5个优质问题</div>
+                                <div class="text-sm text-gray-600">获得"深度思考者"称号</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 行动按钮 -->
+        <section class="mb-16">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <a href="course-list.html" class="block p-6 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-2xl shadow-lg hover:shadow-xl transition text-center">
+                    <i class="fas fa-book-open text-2xl mb-3"></i>
+                    <div class="text-xl font-bold mb-2">继续学习</div>
+                    <div class="text-sm opacity-90">回到课程列表</div>
+                </a>
+                
+                <a href="practice-scenarios.html" class="block p-6 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-2xl shadow-lg hover:shadow-xl transition text-center">
+                    <i class="fas fa-vial text-2xl mb-3"></i>
+                    <div class="text-xl font-bold mb-2">实践练习</div>
+                    <div class="text-sm opacity-90">场景模拟训练</div>
+                </a>
+            </div>
+        </section>
+    </main>
+
+    <!-- 底部导航 -->
+    <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 safe-bottom">
+        <div class="container mx-auto px-4">
+            <div class="flex justify-around py-3">
+                <a href="home-dashboard.html" class="flex flex-col items-center text-gray-600 hover:text-purple-500">
+                    <i class="fas fa-home text-xl"></i>
+                    <span class="text-xs mt-1">首页</span>
+                </a>
+                <a href="course-list.html" class="flex flex-col items-center text-gray-600 hover:text-purple-500">
+                    <i class="fas fa-book-open text-xl"></i>
+                    <span class="text-xs mt-1">课程</span>
+                </a>
+                <a href="level-system.html" class="flex flex-col items-center text-gray-600 hover:text-purple-500">
+                    <i class="fas fa-trophy text-xl"></i>
+                    <span class="text-xs mt-1">等级</span>
+                </a>
+                <a href="ai-coach.html" class="flex flex-col items-center text-purple-500">
+                    <i class="fas fa-robot text-xl"></i>
+                    <span class="text-xs mt-1">AI教练</span>
+                </a>
+                <a href="#" onclick="showProfile()" class="flex flex-col items-center text-gray-600 hover:text-purple-500">
+                    <i class="fas fa-user text-xl"></i>
+                    <span class="text-xs mt-1">我的</span>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- JavaScript -->
+    <script>
+        // 聊天消息数组
+        let chatMessages = [
+            {
+                type: 'ai',
+                sender: '小智教练',
+                content: '您好！我是您的AI学习教练小智。😊<br><br>我可以帮助您：<ul class="mt-2 space-y-1"><li>• 解答认知症照护相关问题</li><li>• 推荐适合您的学习内容</li><li>• 分析您的学习进度</li><li>• 提供实践建议和技巧</li></ul><br>请问有什么可以帮您的吗？',
+                time: '刚刚'
+            },
+            {
+                type: 'user',
+                sender: '您',
+                content: '我想了解认知症患者的行为管理技巧',
+                time: '1分钟前'
+            },
+            {
+                type: 'ai',
+                sender: '小智教练',
+                content: '很好的问题！认知症患者的行为管理确实很重要。以下是一些关键技巧：<br><br><strong>1. 理解行为背后的原因</strong><br>• 行为可能是未满足需求的表达（如疼痛、饥饿）<br>• 环境因素（噪音、光线）可能引发不安<br>• 沟通困难导致的挫败感<br><br><strong>2. 有效的沟通策略</strong><br>• 使用简单、清晰的语言<br>• 保持眼神接触和温和的语气<br>• 给予足够的时间回应<br><br><strong>3. 环境调整</strong><br>• 创建安全、熟悉的环境<br>• 减少刺激和干扰<br>• 建立规律的日常活动<br><br>需要我详细解释某个方面吗？',
+                time: '刚刚'
+            }
+        ];
+        
+        // 显示设置
+        function showSettings() {
+            showToast('⚙️ 打开AI教练设置', 'info');
+            // 实际开发中这里应该打开设置页面
+        }
+        
+        // 切换主题
+        function toggleTheme() {
+            const body = document.body;
+            const isDark = body.classList.contains('dark');
+            
+            if (isDark) {
+                body.classList.remove('dark');
+                showToast('🌞 已切换为浅色模式', 'success');
+            } else {
+                body.classList.add('dark');
+                showToast('🌙 已切换为深色模式', 'success');
+            }
+        }
+        
+        // 发送消息
+        function sendMessage() {
+            const input = document.getElementById('message-input');
+            const message = input.value.trim();
+            
+            if (!message) {
+                showToast('请输入消息内容', 'warning');
+                return;
+            }
+            
+            // 添加用户消息
+            addMessage('user', '您', message, '刚刚');
+            
+            // 清空输入框
+            input.value = '';
+            
+            // 模拟AI思考
+            setTimeout(() => {
+                showTypingIndicator();
+                
+                // 模拟AI回复
+                setTimeout(() => {
+                    removeTypingIndicator();
+                    
+                    const aiResponses = [
+                        '这是一个很好的问题！让我为您详细解答...',
+                        '我理解您的疑问，根据最新的认知症照护指南...',
+                        '这个问题很常见，许多志愿者都遇到过类似情况...',
+                        '让我从几个方面为您分析这个问题...',
+                        '基于您之前的学习进度，我建议...'
+                    ];
+                    
+                    const randomResponse = aiResponses[Math.floor(Math.random() * aiResponses.length)];
+                    const fullResponse = `${randomResponse}<br><br>认知症照护需要耐心和理解。建议您：<br>1. 观察患者的行为模式<br>2. 记录触发因素<br>3. 尝试不同的应对策略<br>4. 寻求专业支持<br><br>需要我详细解释某个方面吗？`;
+                    
+                    addMessage('ai', '小智教练', fullResponse, '刚刚');
+                }, 1500 + Math.random() * 1000);
+            }, 300);
+        }
+        
+        // 发送建议
+        function sendSuggestion(text) {
+            document.getElementById('message-input').value = text;
+            sendMessage();
+        }
+        
+        // 添加消息到聊天
+        function addMessage(type, sender, content, time) {
+            const chatContainer = document.getElementById('chat-messages');
+            
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `${type}-message p-4 mb-4`;
+            
+            if (type === 'ai') {
+                messageDiv.innerHTML = `
+                    <div class="flex items-start">
+                        <div class="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center mr-3 flex-shrink-0">
+                            <i class="fas fa-robot text-white text-sm"></i>
+                        </div>
+                        <div>
+                            <div class="font-medium text-gray-900 mb-1">${sender}</div>
+                            <div class="text-gray-700">${content}</div>
+                            <div class="text-xs text-gray-500 mt-2">${time}</div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                messageDiv.innerHTML = `
+                    <div class="flex items-start justify-end">
+                        <div class="text-right mr-3">
+                            <div class="font-medium text-white mb-1">${sender}</div>
+                            <div class="text-white">${content}</div>
+                            <div class="text-xs text-white/80 mt-2">${time}</div>
+                        </div>
+                        <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-full flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-user text-white text-sm"></i>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            chatContainer.appendChild(messageDiv);
+            
+            // 滚动到底部
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+            
+            // 添加到消息数组
+            chatMessages.push({
+                type: type,
+                sender: sender,
+                content: content,
+                time: time
+            });
+        }
+        
+        // 显示打字指示器
+        function showTypingIndicator() {
+            const chatContainer = document.getElementById('chat-messages');
+            
+            const typingDiv = document.createElement('div');
+            typingDiv.id = 'typing-indicator';
+            typingDiv.className = 'typing-indicator mb-4';
+            typingDiv.innerHTML = `
+                <div class="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center mr-3 flex-shrink-0">
+                    <i class="fas fa-robot text-white text-sm"></i>
+                </div>
+                <div class="flex">
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                </div>
+                <div class="ml-3 text-sm text-gray-600">小智教练正在思考...</div>
+            `;
+            
+            chatContainer.appendChild(typingDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+        
+        // 移除打字指示器
+        function removeTypingIndicator() {
+            const typingIndicator = document.getElementById('typing-indicator');
+            if (typingIndicator) {
+                typingIndicator.remove();
+            }
+        }
+        
+        // 清空聊天
+        function clearChat() {
+            if (confirm('确定要清空所有聊天记录吗？')) {
+                const chatContainer = document.getElementById('chat-messages');
+                chatContainer.innerHTML = '';
+                
+                // 重置消息数组
+                chatMessages = [];
+                
+                // 添加初始欢迎消息
+                addMessage('ai', '小智教练', '您好！我是您的AI学习教练小智。😊<br><br>请问有什么可以帮您的吗？', '刚刚');
+                
+                showToast('聊天记录已清空', 'success');
+            }
+        }
+        
+        // 键盘快捷键
+        function handleKeyPress(event) {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                sendMessage();
+            }
+        }
+        
+        // 功能按钮处理
+        function startQASession() {
+            sendSuggestion('我想开始一个系统的问答学习');
+        }
+        
+        function planLearningPath() {
+            showToast('📚 正在为您规划个性化学习路径...', 'info');
+            setTimeout(() => {
+                addMessage('ai', '小智教练', '根据您的学习历史和目标，我为您规划了以下学习路径：<br><br>1. <strong>基础阶段</strong> (1-2周)<br>• 认知症基础知识<br>• 基本沟通技巧<br>• 安全照护原则<br><br>2. <strong>进阶阶段</strong> (2-3周)<br>• 行为管理策略<br>• 活动设计与实施<br>• 家庭支持技巧<br><br>3. <strong>实践阶段</strong> (持续)<br>• 场景模拟练习<br>• 案例分析<br>• 同伴学习<br><br>您想从哪个阶段开始？', '刚刚');
+            }, 1000);
+        }
+        
+        function analyzeProgress() {
+            showToast('📊 正在分析您的学习进度...', 'info');
+            setTimeout(() => {
+                addMessage('ai', '小智教练', '学习进度分析完成！<br><br>📈 <strong>总体进度:</strong> 68%<br>✅ <strong>已完成:</strong> 基础课程、沟通技巧<br>🎯 <strong>当前重点:</strong> 行为管理<br>⚠️ <strong>需要加强:</strong> 实践应用<br><br><strong>建议:</strong><br>1. 完成行为管理模块的模拟练习<br>2. 参与社区讨论分享经验<br>3. 复习沟通技巧中的难点<br><br>需要我为您制定具体的学习计划吗？', '刚刚');
+            }, 1500);
+        }
+        
+        function startSimulation() {
+            showToast('🎭 正在准备场景模拟...', 'info');
+            setTimeout(() => {
+                addMessage('ai', '小智教练', '场景模拟已准备就绪！<br><br><strong>场景:</strong> 认知症患者出现徘徊行为<br><strong>难度:</strong> 中等<br><strong>目标:</strong> 安全引导患者回到房间<br><br>请选择您的应对策略：<br>1. 立即制止并带回房间<br>2. 陪伴散步并观察需求<br>3. 提供喜欢的活动转移注意力<br>4. 寻求其他照护者帮助<br><br>请输入选项编号 (1-4)', '刚刚');
+            }, 1000);
+        }
+        
+        // 显示个人资料
+        function showProfile() {
+            showToast('👤 个人资料页面正在开发中...', 'info');
+        }
+        
+        // 显示Toast通知
+        function showToast(message, type = 'info') {
+            // 移除现有的toast
+            const existingToast = document.getElementById('custom-toast');
+            if (existingToast) {
+                existingToast.remove();
+            }
+            
+            // 创建新的toast
+            const toast = document.createElement('div');
+            toast.id = 'custom-toast';
+            toast.className = `fixed top-20 left-1/2 transform -translate-x-1/2 z-50 px-6 py-3 rounded-lg shadow-lg text-white font-medium transition-all duration-300 ${
+                type === 'success' ? 'bg-green-500' :
+                type === 'error' ? 'bg-red-500' :
+                type === 'warning' ? 'bg-yellow-500' : 'bg-purple-500'
+            }`;
+            toast.textContent = message;
+            
+            document.body.appendChild(toast);
+            
+            // 3秒后自动消失
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translate(-50%, -20px)';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+        
+        // 页面加载完成后的初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 检查深色模式
+            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                document.body.classList.add('dark');
+            }
+            
+            // 聚焦到输入框
+            setTimeout(() => {
+                document.getElementById('message-input').focus();
+            }, 500);
+            
+            // 显示欢迎消息
+            setTimeout(() => {
+                showToast('🤖 欢迎使用AI教练！我是小智，随时为您提供学习帮助。', 'info');
+            }, 1000);
+        });
+        
+        // 页面可见性变化处理
+        document.addEventListener('visibilitychange', function() {
+            if (!document.hidden) {
+                // 页面重新可见时，可以刷新数据
+                showToast('小智教练已重新连接', 'info');
+            }
+        });
+        
+        // 语音输入支持（如果浏览器支持）
+        function startVoiceInput() {
+            if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                showToast('🎤 开始语音输入...', 'info');
+                // 实际开发中这里应该实现语音识别
+            } else {
+                showToast('您的浏览器不支持语音输入', 'warning');
+            }
+        }
+    </script>
+
+    <!-- 深色模式样式 -->
+    <style>
+        .dark body {
+            background: linear-gradient(135deg, #4c1d95 0%, #5b21b6 100%);
+            color: #e2e8f0;
+        }
+        
+        .dark .bg-white {
+            background-color: #1e293b;
+            color: #e2e8f0;
+        }
+        
+        .dark .text-gray-900 {
+            color: #f1f5f9;
+        }
+        
+        .dark .text-gray-600,
+        .dark .text-gray-500 {
+            color: #94a3b8;
+        }
+        
+        .dark .border-gray-200 {
+            border-color: #334155;
+        }
+        
+        .dark .ai-message {
+            background: linear-gradient(135deg, #334155, #1e293b);
+        }
+        
+        .dark .feature-card {
+            background: #1e293b;
+            border: 1px solid #334155;
+        }
+        
+        .dark .suggestion-chip {
+            background: #334155;
+            color: #e2e8f0;
+        }
+        
+        .dark .suggestion-chip:hover {
+            background: #475569;
+        }
+        
+        .dark .bg-gray-50 {
+            background-color: #0f172a;
+        }
+        
+        .dark .bg-purple-50 { background-color: #4c1d95; }
+        .dark .bg-blue-50 { background-color: #1e3a8a; }
+        .dark .bg-green-50 { background-color: #064e3b; }
+        .dark .bg-amber-50 { background-color: #78350f; }
+        
+        .dark nav {
+            background-color: #1e293b;
+            border-color: #334155;
+        }
+        
+        .dark .typing-indicator {
+            background: #334155;
+        }
+        
+        .dark .typing-dot {
+            background: #94a3b8;
+        }
+        
+        .dark .chat-container::-webkit-scrollbar-track {
+            background: #334155;
+        }
+        
+        .dark .chat-container::-webkit-scrollbar-thumb {
+            background: #64748b;
+        }
+        
+        .dark .chat-container::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</body>
+</html>
+
