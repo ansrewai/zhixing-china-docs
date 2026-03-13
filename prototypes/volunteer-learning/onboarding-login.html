@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>登录/注册 - 知行中国志愿者学习端</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* 移动端适配 */
+        @media (max-width: 640px) {
+            .mobile-container {
+                max-width: 100%;
+                margin: 0 auto;
+            }
+        }
+        
+        /* 输入框样式 */
+        .input-field {
+            transition: all 0.3s ease;
+            border: 2px solid #e5e7eb;
+        }
+        .input-field:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        .input-field.error {
+            border-color: #ef4444;
+        }
+        
+        /* 按钮样式 */
+        .btn-primary {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(59, 130, 246, 0.3);
+        }
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+        
+        /* 社交登录按钮 */
+        .social-btn {
+            transition: all 0.3s ease;
+            border: 2px solid #e5e7eb;
+        }
+        .social-btn:hover {
+            border-color: #3b82f6;
+            transform: translateY(-2px);
+        }
+        
+        /* 标签切换动画 */
+        .tab-content {
+            transition: opacity 0.3s ease;
+        }
+        .tab-content.hidden {
+            display: none;
+            opacity: 0;
+        }
+        .tab-content.active {
+            display: block;
+            opacity: 1;
+        }
+        
+        /* 安全区域适配 */
+        .safe-top {
+            padding-top: env(safe-area-inset-top);
+        }
+        .safe-bottom {
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+        
+        /* 加载动画 */
+        .loading-spinner {
+            border: 3px solid #f3f4f6;
+            border-top: 3px solid #3b82f6;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen flex flex-col mobile-container">
+    <!-- 状态栏模拟 -->
+    <div class="bg-white safe-top">
+        <div class="flex justify-between items-center px-4 py-2">
+            <div class="text-sm font-medium">9:41</div>
+            <div class="flex space-x-1">
+                <div class="w-4 h-4 bg-gray-800 rounded-full"></div>
+                <div class="w-4 h-4 bg-gray-800 rounded-full"></div>
+                <div class="w-4 h-4 bg-gray-800 rounded-full"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 返回按钮 -->
+    <div class="px-4 py-3">
+        <button onclick="window.location.href='onboarding-welcome.html'" 
+                class="w-10 h-10 flex items-center justify-center text-gray-600 hover:text-blue-600 rounded-full hover:bg-gray-100">
+            ←
+        </button>
+    </div>
+    
+    <!-- 主内容 -->
+    <main class="flex-1 p-6">
+        <div class="max-w-md mx-auto">
+            <!-- 标题 -->
+            <div class="text-center mb-8">
+                <h1 class="text-2xl font-bold text-gray-800 mb-2">欢迎回来</h1>
+                <p class="text-gray-600">登录您的账户继续学习之旅</p>
+            </div>
+            
+            <!-- 标签切换 -->
+            <div class="flex mb-6 bg-gray-100 rounded-xl p-1">
+                <button id="tab-login" class="tab-toggle flex-1 py-3 rounded-lg font-medium transition-colors active" data-tab="login">
+                    登录
+                </button>
+                <button id="tab-register" class="tab-toggle flex-1 py-3 rounded-lg font-medium transition-colors" data-tab="register">
+                    注册
+                </button>
+            </div>
+            
+            <!-- 登录表单 -->
+            <div id="login-form" class="tab-content active">
+                <form id="loginForm" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">手机号/邮箱</label>
+                        <input type="text" 
+                               id="login-account"
+                               class="input-field w-full px-4 py-3 rounded-xl bg-white"
+                               placeholder="请输入手机号或邮箱"
+                               required>
+                        <div id="login-account-error" class="text-red-500 text-sm mt-1 hidden"></div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">密码</label>
+                        <div class="relative">
+                            <input type="password" 
+                                   id="login-password"
+                                   class="input-field w-full px-4 py-3 rounded-xl bg-white pr-12"
+                                   placeholder="请输入密码"
+                                   required>
+                            <button type="button" 
+                                    class="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
+                                    onclick="togglePassword('login-password', this)">
+                                👁️
+                            </button>
+                        </div>
+                        <div id="login-password-error" class="text-red-500 text-sm mt-1 hidden"></div>
+                    </div>
+                    
+                    <div class="flex justify-between items-center">
+                        <label class="flex items-center">
+                            <input type="checkbox" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                            <span class="ml-2 text-sm text-gray-600">记住我</span>
+                        </label>
+                        <a href="#" class="text-sm text-blue-600 hover:text-blue-800">忘记密码？</a>
+                    </div>
+                    
+                    <button type="submit" 
+                            id="login-submit"
+                            class="btn-primary w-full py-3 text-white font-bold rounded-xl text-lg mt-6">
+                        <span id="login-text">登录</span>
+                        <div id="login-loading" class="loading-spinner mx-auto hidden"></div>
+                    </button>
+                </form>
+            </div>
+            
+            <!-- 注册表单 -->
+            <div id="register-form" class="tab-content hidden">
+                <form id="registerForm" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">手机号</label>
+                        <div class="flex space-x-2">
+                            <input type="tel" 
+                                   id="register-phone"
+                                   class="input-field flex-1 px-4 py-3 rounded-xl bg-white"
+                                   placeholder="13800138000"
+                                   required>
+                            <button type="button" 
+                                    id="send-code"
+                                    class="px-4 py-3 bg-blue-100 text-blue-600 font-medium rounded-xl hover:bg-blue-200 transition-colors">
+                                发送验证码
+                            </button>
+                        </div>
+                        <div id="register-phone-error" class="text-red-500 text-sm mt-1 hidden"></div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">验证码</label>
+                        <input type="text" 
+                               id="register-code"
+                               class="input-field w-full px-4 py-3 rounded-xl bg-white"
+                               placeholder="请输入6位验证码"
+                               maxlength="6"
+                               required>
+                        <div id="register-code-error" class="text-red-500 text-sm mt-1 hidden"></div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">设置密码</label>
+                        <div class="relative">
+                            <input type="password" 
+                                   id="register-password"
+                                   class="input-field w-full px-4 py-3 rounded-xl bg-white pr-12"
+                                   placeholder="至少8位字符"
+                                   required>
+                            <button type="button" 
+                                    class="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
+                                    onclick="togglePassword('register-password', this)">
+                                👁️
+                            </button>
+                        </div>
+                        <div class="text-xs text-gray-500 mt-1">
+                            密码强度：<span id="password-strength" class="font-medium">弱</span>
+                            <div class="w-full bg-gray-200 rounded-full h-1.5 mt-1">
+                                <div id="password-strength-bar" class="bg-red-500 h-1.5 rounded-full" style="width: 30%"></div>
+                            </div>
+                        </div>
+                        <div id="register-password-error" class="text-red-500 text-sm mt-1 hidden"></div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">确认密码</label>
+                        <input type="password" 
+                               id="register-confirm"
+                               class="input-field w-full px-4 py-3 rounded-xl bg-white"
+                               placeholder="再次输入密码"
+                               required>
+                        <div id="register-confirm-error" class="text-red-500 text-sm mt-1 hidden"></div>
+                    </div>
+                    
+                    <div class="flex items-start">
+                        <input type="checkbox" 
+                               id="register-agreement"
+                               class="mt-1 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                               required>
+                        <label for="register-agreement" class="ml-2 text-sm text-gray-600">
+                            我已阅读并同意
+                            <a href="#" class="text-blue-600 hover:text-blue-800">《服务协议》</a>
+                            和
+                            <a href="#" class="text-blue-600 hover:text-blue-800">《隐私政策》</a>
+                        </label>
+                    </div>
+                    
+                    <button type="submit" 
+                            id="register-submit"
+                            class="btn-primary w-full py-3 text-white font-bold rounded-xl text-lg mt-6">
+                        <span id="register-text">注册</span>
+                        <div id="register-loading" class="loading-spinner mx-auto hidden"></div>
+                    </button>
+                </form>
+            </div>
+            
+            <!-- 社交登录 -->
+            <div class="mt-8">
+                <div class="flex items-center mb-4">
+                    <div class="flex-1 h-px bg-gray-300"></div>
+                    <div class="px-4 text-sm text-gray-500">或使用以下方式登录</div>
+                    <div class="flex-1 h-px bg-gray-300"></div>
+                </div>
+                
+                <div class="grid grid-cols-3 gap-3">
+                    <button class="social-btn p-3 rounded-xl flex flex-col items-center justify-center">
+                        <span class="text-xl mb-1">🐧</span>
+                        <span class="text-xs text-gray-600">QQ</span>
+                    </button>
+                    <button class="social-btn p-3 rounded-xl flex flex-col items-center justify-center">
+                        <span class="text-xl mb-1">💬</span>
+                        <span class="text-xs text-gray-600">微信</span>
+                    </button>
+                    <button class="social-btn p-3 rounded-xl flex flex-col items-center justify-center">
+                        <span class="text-xl mb-1">📱</span>
+                        <span class="text-xs text-gray-600">手机</span>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- 协议说明 -->
+            <div class="mt-8 text-center">
+                <p class="text-xs text-gray-500">
+                    登录/注册即表示您同意我们的
+                    <a href="#" class="text-blue-600">服务条款</a>
+                    和
+                    <a href="#" class="text-blue-600">隐私政策</a>
+                </p>
+            </div>
+        </div>
+    </main>
+    
+    <!-- 原型导航 -->
+    <div class="fixed top-4 right-4 z-10">
+        <div class="bg-white rounded-full shadow-lg p-2">
+            <button onclick="window.location.href='../index.html'" 
+                    class="w-10 h-10 flex items-center justify-center text-gray-600 hover:text-blue-600">
+                ←
+            </button>
+        </div>
+    </div>
+    
+    <script>
+        // 切换密码显示/隐藏
+        function togglePassword(inputId, button) {
+            const input = document.getElementById(inputId);
+            if (input.type === 'password') {
+                input.type = 'text';
+                button.textContent = '🙈';
+            } else {
+                input.type = 'password';
+                button.textContent = '👁️';
+            }
+        }
+        
+        // 标签切换
+        function setupTabSwitching() {
+            const tabToggles = document.querySelectorAll('.tab-toggle');
+            const tabContents = document.querySelectorAll('.tab-content');
+            
+            tabToggles.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const tabId = this.dataset.tab;
+                    
+                    // 更新标签状态
+                    tabToggles.forEach(t => {
+                        if (t === this) {
+                            t.classList.add('active', 'bg-white', 'text-blue-600', 'shadow-sm');
+                            t.classList.remove('text-gray-600');
+                        } else {
+                            t.classList.remove('active', 'bg-white', 'text-blue-600', 'shadow-sm');
+                            t.classList.add('text-gray-600');
+                        }
+                    });
+                    
+                    // 显示对应内容
+                    tabContents.forEach(content => {
+                        if (content.id === `${tabId}-form`) {
+                            content.classList.remove('hidden');
+                            setTimeout(() => content.classList.add('active'), 10);
+                        } else {
+                            content.classList.remove('active');
+                            setTimeout(() => content.classList.add('hidden'), 300);
+                        }
+                    });
+                });
+            });
+        }
+        
+        // 密码强度检测
+        function checkPasswordStrength(password) {
+            let strength = 0;
+            const strengthBar = document.getElementById('password-strength-bar');
+            const strengthText = document.getElementById('password-strength');
+            
+            if (password.length >= 8) strength++;
+            if (/[A-Z]/.test(password)) strength++;
+            if (/[a-z]/.test(password)) strength++;
+            if (/[0-9]/.test(password)) strength++;
+            if (/[^A-Za-z0-9]/.test(password)) strength++;
+            
+            let width, color, text;
+            switch(strength) {
+                case 0:
+                case 1:
+                    width = '30%'; color = '#ef4444'; text = '弱';
+                    break;
+                case 2:
+                case 3:
+                    width = '60%'; color = '#f59e0b'; text = '中';
+                    break;
+                case 4:
+                case 5:
+                    width = '100%'; color = '#10b981'; text = '强';
+                    break;
+                default:
+                    width = '30%'; color = '#ef4444'; text = '弱';
+            }
+            
+            strengthBar.style.width = width;
+            strengthBar.style.backgroundColor = color;
+            strengthText.textContent = text;
+            strengthText.className = 'font-medium';
+            if (color === '#ef4444') strengthText.classList.add('text-red-500');
+            else if (color === '#f59e0b') strengthText.classList.add('text-yellow-500');
+            else strengthText.classList.add('text-green-500');
+        }
+        
+        // 表单验证
+        function validateForm(formId) {
+            let isValid = true;
+            const form = document.getElementById(formId);
+            const inputs = form.querySelectorAll('input[required]');
+            
+            inputs.forEach(input => {
+                const errorElement = document.getElementById(`${input.id}-error`);
+                
+                // 清除之前的错误状态
+                input.classList.remove('error');
+                if (errorElement) errorElement.classList.add('hidden');
+                
+                // 检查必填字段
+                if (!input.value.trim()) {
+                    isValid = false;
+                    input.classList.add('error');
+                    if (errorElement) {
+                        errorElement.textContent = '此字段为必填项';
+                        errorElement.classList.remove('hidden');
+                    }
+                }
+                
+                // 特殊验证
+                if (input.id === 'register-phone' && input.value) {
+                    const phoneRegex = /^1[3-9]\d{9}$/;
+                    if (!phoneRegex.test(input.value)) {
+                        isValid = false;
+                        input.classList.add('error');
+                        if (errorElement) {
+                            errorElement.textContent = '请输入有效的手机号';
+                            errorElement.classList.remove('hidden');
+                        }
+                    }
+                }
+                
+                if (input.id === 'register-code' && input.value) {
+                    if (input.value.length !== 6 || !/^\d+$/.test(input.value)) {
+                        isValid = false;
+                        input.classList.add('error');
+                        if (errorElement) {
+                            errorElement.textContent = '请输入6位数字验证码';
+                            errorElement.classList.remove('hidden');
+                        }
+                    }
+                }
+                
+                if (input.id === 'register-password' && input.value) {
+                    if (input.value.length < 8) {
+                        isValid = false;
+                        input.classList.add('error');
+                        if (errorElement) {
+                            errorElement.textContent = '密码至少需要8位字符';
+                            errorElement.classList.remove('hidden');
+                        }

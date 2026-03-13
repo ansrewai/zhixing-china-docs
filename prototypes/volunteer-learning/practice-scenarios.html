@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>实践场景 - 知行中国志愿者学习端</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* 移动端适配 */
+        @media (max-width: 640px) {
+            .mobile-container {
+                max-width: 100%;
+                margin: 0 auto;
+            }
+        }
+        
+        /* 场景卡片 */
+        .scenario-card {
+            transition: all 0.3s ease;
+            border-radius: 20px;
+            overflow: hidden;
+            position: relative;
+        }
+        .scenario-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+        
+        /* 难度标签 */
+        .difficulty-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+        }
+        .difficulty-easy {
+            background: rgba(34, 197, 94, 0.1);
+            color: #16a34a;
+        }
+        .difficulty-medium {
+            background: rgba(245, 158, 11, 0.1);
+            color: #d97706;
+        }
+        .difficulty-hard {
+            background: rgba(239, 68, 68, 0.1);
+            color: #dc2626;
+        }
+        
+        /* 进度环 */
+        .progress-ring {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: conic-gradient(#3b82f6 0% 75%, #e5e7eb 75% 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .progress-ring-inner {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #3b82f6;
+        }
+        
+        /* 安全区域适配 */
+        .safe-top {
+            padding-top: env(safe-area-inset-top);
+        }
+        .safe-bottom {
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+        
+        /* 筛选器 */
+        .filter-tab {
+            padding: 10px 16px;
+            border-radius: 12px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        .filter-tab.active {
+            background: #3b82f6;
+            color: white;
+        }
+        .filter-tab:not(.active):hover {
+            border-color: #3b82f6;
+            color: #3b82f6;
+        }
+        
+        /* 底部导航栏 */
+        .tab-bar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen flex flex-col mobile-container">
+    <!-- 状态栏模拟 -->
+    <div class="bg-white safe-top">
+        <div class="flex justify-between items-center px-4 py-2">
+            <div class="text-sm font-medium">9:41</div>
+            <div class="flex space-x-1">
+                <div class="w-4 h-4 bg-gray-800 rounded-full"></div>
+                <div class="w-4 h-4 bg-gray-800 rounded-full"></div>
+                <div class="w-4 h-4 bg-gray-800 rounded-full"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 顶部导航 -->
+    <header class="bg-white border-b border-gray-200 px-4 py-3">
+        <div class="flex items-center justify-between mb-4">
+            <button onclick="window.location.href='home-dashboard.html'" 
+                    class="w-10 h-10 flex items-center justify-center text-gray-600 hover:text-blue-600 rounded-full hover:bg-gray-100">
+                ←
+            </button>
+            <h1 class="text-lg font-bold text-gray-800">实践场景</h1>
+            <div class="w-10"></div> <!-- 占位 -->
+        </div>
+        
+        <!-- 筛选器 -->
+        <div class="flex overflow-x-auto scrollbar-hide space-x-2 pb-2">
+            <button class="filter-tab active whitespace-nowrap" data-filter="all">
+                全部场景
+            </button>
+            <button class="filter-tab whitespace-nowrap" data-filter="communication">
+                沟通场景
+            </button>
+            <button class="filter-tab whitespace-nowrap" data-filter="care">
+                护理场景
+            </button>
+            <button class="filter-tab whitespace-nowrap" data-filter="emergency">
+                应急场景
+            </button>
+            <button class="filter-tab whitespace-nowrap" data-filter="completed">
+                已完成
+            </button>
+        </div>
+    </header>
+    
+    <!-- 主内容 -->
+    <main class="flex-1 overflow-y-auto p-4">
+        <!-- 场景统计 -->
+        <div class="bg-white rounded-2xl p-5 mb-6">
+            <div class="flex items-center justify-between mb-4">
+                <div>
+                    <h3 class="font-bold text-gray-800 mb-1">📊 实践进度</h3>
+                    <p class="text-sm text-gray-500">通过实践提升护理技能</p>
+                </div>
+                <div class="progress-ring">
+                    <div class="progress-ring-inner">
+                        40%
+                    </div>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-3 gap-3">
+                <div class="text-center">
+                    <div class="text-xl font-bold text-blue-600 mb-1">8</div>
+                    <div class="text-xs text-gray-500">总场景</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-xl font-bold text-green-600 mb-1">3</div>
+                    <div class="text-xs text-gray-500">已完成</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-xl font-bold text-purple-600 mb-1">2</div>
+                    <div class="text-xs text-gray-500">进行中</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 场景列表 -->
+        <div id="scenarios-container" class="space-y-4">
+            <!-- 场景卡片将通过JavaScript动态生成 -->
+        </div>
+        
+        <!-- 底部留白 -->
+        <div class="h-20"></div>
+    </main>
+    
+    <!-- 底部导航栏 -->
+    <nav class="tab-bar safe-bottom">
+        <div class="flex justify-around items-center px-2 py-3">
+            <a href="home-dashboard.html" class="flex flex-col items-center text-gray-500 hover:text-blue-600">
+                <span class="text-2xl mb-1">🏠</span>
+                <span class="text-xs">首页</span>
+            </a>
+            
+            <a href="course-list.html" class="flex flex-col items-center text-gray-500 hover:text-blue-600">
+                <span class="text-2xl mb-1">📚</span>
+                <span class="text-xs">课程</span>
+            </a>
+            
+            <a href="practice-scenarios.html" class="flex flex-col items-center text-blue-600">
+                <span class="text-2xl mb-1">🎮</span>
+                <span class="text-xs font-medium">实践</span>
+            </a>
+            
+            <a href="community-feed.html" class="flex flex-col items-center text-gray-500 hover:text-blue-600">
+                <span class="text-2xl mb-1">💬</span>
+                <span class="text-xs">社区</span>
+            </a>
+            
+            <a href="profile-overview.html" class="flex flex-col items-center text-gray-500 hover:text-blue-600">
+                <span class="text-2xl mb-1">👤</span>
+                <span class="text-xs">我的</span>
+            </a>
+        </div>
+    </nav>
+    
+    <!-- 原型导航 -->
+    <div class="fixed top-4 right-4 z-10">
+        <div class="bg-white rounded-full shadow-lg p-2">
+            <button onclick="window.location.href='../index.html'" 
+                    class="w-10 h-10 flex items-center justify-center text-gray-600 hover:text-blue-600">
+                ←
+            </button>
+        </div>
+    </div>
+    
+    <script>
+        // 实践场景数据
+        const scenarios = [
+            {
+                id: 1,
+                title: '初次见面沟通',
+                description: '与认知障碍患者建立初次接触，建立信任关系',
+                category: 'communication',
+                difficulty: 'easy',
+                duration: '15分钟',
+                progress: 100,
+                completed: true,
+                score: 95,
+                icon: '👋',
+                color: 'blue',
+                skills: ['沟通技巧', '情绪观察', '建立信任']
+            },
+            {
+                id: 2,
+                title: '日常护理协助',
+                description: '协助患者完成日常个人卫生护理',
+                category: 'care',
+                difficulty: 'medium',
+                duration: '25分钟',
+                progress: 75,
+                completed: false,
+                score: null,
+                icon: '🛁',
+                color: 'green',
+                skills: ['个人护理', '安全防护', '耐心沟通']
+            },
+            {
+                id: 3,
+                title: '情绪安抚场景',
+                description: '处理患者的焦虑、激动等情绪问题',
+                category: 'communication',
+                difficulty: 'medium',
+                duration: '20分钟',
+                progress: 40,
+                completed: false,
+                score: null,
+                icon: '😊',
+                color: 'yellow',
+                skills: ['情绪管理', '心理支持', '危机干预']
+            },
+            {
+                id: 4,
+                title: '紧急情况处理',
+                description: '模拟突发紧急情况的应急处理',
+                category: 'emergency',
+                difficulty: 'hard',
+                duration: '30分钟',
+                progress: 0,
+                completed: false,
+                score: null,
+                icon: '🚨',
+                color: 'red',
+                skills: ['急救知识', '应急预案', '冷静应对']
+            },
+            {
+                id: 5,
+                title: '记忆训练活动',
+                description: '带领患者进行简单的记忆训练游戏',
+                category: 'care',
+                difficulty: 'easy',
+                duration: '20分钟',
+                progress: 100,
+                completed: true,
+                score: 88,
+                icon: '🧠',
+                color: 'purple',
+                skills: ['认知训练', '活动设计', '积极引导']
+            },
+            {
+                id: 6,
+                title: '家属沟通协调',
+                description: '与患者家属进行有效沟通和协调',
+                category: 'communication',
+                difficulty: 'hard',
+                duration: '35分钟',
+                progress: 0,
+                completed: false,
+                score: null,
+                icon: '👨‍👩‍👧',
+                color: 'indigo',
+                skills: ['家属沟通', '信息传递', '关系协调']
+            },
+            {
+                id: 7,
+                title: '药物管理协助',
+                description: '协助患者正确服用药物',
+                category: 'care',
+                difficulty: 'medium',
+                duration: '15分钟',
+                progress: 100,
+                completed: true,
+                score: 92,
+                icon: '💊',
+                color: 'pink',
+                skills: ['药物知识', '安全用药', '记录管理']
+            },
+            {
+                id: 8,
+                title: '环境安全检查',
+                description: '对患者居住环境进行安全检查',
+                category: 'emergency',
+                difficulty: 'easy',
+                duration: '25分钟',
+                progress: 20,
+                completed: false,
+                score: null,
+                icon: '🔍',
+                color: 'gray',
+                skills: ['环境评估', '风险识别', '安全改进']
+            }
+        ];
+
+        // 当前筛选状态
+        let currentFilter = 'all';
+
+        // 渲染场景卡片
+        function renderScenarios() {
+            const container = document.getElementById('scenarios-container');
+            if (!container) return;
+            
+            container.innerHTML = '';
+            
+            // 过滤场景
+            const filteredScenarios = scenarios.filter(scenario => {
+                if (currentFilter === 'all') return true;
+                if (currentFilter === 'completed') return scenario.completed;
+                return scenario.category === currentFilter;
+            });
+            
+            // 排序：进行中 > 未开始 > 已完成
+            filteredScenarios.sort((a, b) => {
+                if (a.completed !== b.completed) return a.completed - b.completed;
+                if (a.progress === 0 && b.progress > 0) return 1;
+                if (b.progress === 0 && a.progress > 0) return -1;
+                return b.progress - a.progress;
+            });
+            
+            // 生成场景卡片
+            filteredScenarios.forEach(scenario => {
+                const card = document.createElement('div');
+                card.className = 'scenario-card bg-white';
+                card.innerHTML = `
+                    <div class="p-5">
+                        <div class="flex justify-between items-start mb-4">
+                            <div class="flex items-start">
+                                <div class="w-14 h-14 ${getColorClass(scenario.color)} rounded-xl flex items-center justify-center mr-3">
+                                    <span class="text-2xl">${scenario.icon}</span>
+                                </div>
+                                <div>
+                                    <h3 class="font-bold text-gray-800 mb-1">${scenario.title}</h3>
+                                    <div class="flex items-center space-x-2 mb-2">
+                                        <span class="${getDifficultyClass(scenario.difficulty)}">
+                                            ${getDifficultyText(scenario.difficulty)}
+                                        </span>
+                                        <span class="text-xs text-gray-500">${scenario.duration}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            ${scenario.completed ? 
+                                `<div class="text-right">
+                                    <div class="text-lg font-bold text-green-600 mb-1">${scenario.score}</div>
+                                    <div class="text-xs text-gray-500">得分</div>
+                                </div>` :
+                                `<div class="text-right">
+                                    <div class="text-lg font-bold ${scenario.progress > 0 ? 'text-blue-600' : 'text-gray-400'} mb-1">
+                                        ${scenario.progress}%
+                                    </div>
+                                    <div class="text-xs text-gray-500">进度</div>
+                                </div>`
+                            }
+                        </div>
+                        
+                        <p class="text-gray-600 text-sm mb-4">${scenario.description}</p>
+                        
+                        <!-- 技能标签 -->
+                        <div class="flex flex-wrap gap-1 mb-4">
+                            ${scenario.skills.map(skill => `
+                                <span class="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded">${skill}</span>
+                            `).join('')}
+                        </div>
+                        
+                        <!-- 进度条 -->
+                        <div class="mb-4">
+                            <div class="flex justify-between text-xs text-gray-500 mb-1">
+                                <span>练习进度</span>
+                                <span>${scenario.progress}%</span>
+                            </div>
+                            <div class="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+                                <div class="h-full ${scenario.completed ? 'bg-green-500' : 'bg-blue-500'}" 
+                                     style="width: ${scenario.progress}%"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- 操作按钮 -->
+                        <div class="flex space-x-2">
+                            ${scenario.completed ? 
+                                `<button class="flex-1 py-2.5 bg-gray-100 text-gray-700 font-medium rounded-lg hover:bg-gray-200">
+                                    查看报告
+                                </button>
+                                <button onclick="window.location.href='practice-simulation.html?id=${scenario.id}'" 
+                                        class="flex-1 py-2.5 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700">
+                                    重新练习
+                                </button>` :
+                                scenario.progress > 0 ?
+                                `<button onclick="window.location.href='practice-simulation.html?id=${scenario.id}'" 
+                                        class="flex-1 py-2.5 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700">
+                                    继续练习
+                                </button>` :
+                                `<button onclick="window.location.href='practice-simulation.html?id=${scenario.id}'" 
+                                        class="flex-1 py-2.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold rounded-lg hover:shadow-lg">
+                                    开始练习
+                                </button>`
+                            }
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+            
+            // 如果没有场景
+            if (filteredScenarios.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-12">
+                        <div class="text-gray-400 text-4xl mb-4">🎮</div>
+                        <h3 class="text-lg font-medium text-gray-800 mb-2">暂无实践场景</h3>
+                        <p class="text

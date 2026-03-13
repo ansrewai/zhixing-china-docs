@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>章节测试 - 知行中国志愿者学习端</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* 移动端适配 */
+        @media (max-width: 640px) {
+            .mobile-container {
+                max-width: 100%;
+                margin: 0 auto;
+            }
+        }
+        
+        /* 题目卡片 */
+        .question-card {
+            transition: all 0.3s ease;
+            border-radius: 16px;
+            overflow: hidden;
+        }
+        
+        /* 选项样式 */
+        .option-item {
+            transition: all 0.3s ease;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            cursor: pointer;
+        }
+        .option-item:hover {
+            border-color: #3b82f6;
+            background: #eff6ff;
+        }
+        .option-item.selected {
+            border-color: #3b82f6;
+            background: #eff6ff;
+        }
+        .option-item.correct {
+            border-color: #10b981;
+            background: #d1fae5;
+        }
+        .option-item.incorrect {
+            border-color: #ef4444;
+            background: #fee2e2;
+        }
+        
+        /* 进度条 */
+        .quiz-progress {
+            height: 6px;
+            background: #e5e7eb;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        .quiz-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #3b82f6 0%, #8b5cf6 100%);
+            transition: width 0.5s ease;
+        }
+        
+        /* 安全区域适配 */
+        .safe-top {
+            padding-top: env(safe-area-inset-top);
+        }
+        .safe-bottom {
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+        
+        /* 计时器 */
+        .timer {
+            font-variant-numeric: tabular-nums;
+        }
+        
+        /* 结果动画 */
+        @keyframes celebrate {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        .celebrate {
+            animation: celebrate 0.5s ease;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen flex flex-col mobile-container">
+    <!-- 状态栏模拟 -->
+    <div class="bg-white safe-top">
+        <div class="flex justify-between items-center px-4 py-2">
+            <div class="text-sm font-medium">9:41</div>
+            <div class="flex space-x-1">
+                <div class="w-4 h-4 bg-gray-800 rounded-full"></div>
+                <div class="w-4 h-4 bg-gray-800 rounded-full"></div>
+                <div class="w-4 h-4 bg-gray-800 rounded-full"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 顶部导航 -->
+    <header class="bg-white border-b border-gray-200 px-4 py-3">
+        <div class="flex items-center justify-between mb-3">
+            <button onclick="window.location.href='learning-player.html'" 
+                    class="w-10 h-10 flex items-center justify-center text-gray-600 hover:text-blue-600 rounded-full hover:bg-gray-100">
+                ←
+            </button>
+            <h1 class="text-lg font-bold text-gray-800">章节测试</h1>
+            <div class="w-10"></div> <!-- 占位 -->
+        </div>
+        
+        <!-- 测试信息 -->
+        <div class="flex items-center justify-between text-sm">
+            <div>
+                <span class="font-medium text-gray-800">安全防护措施</span>
+                <span class="text-gray-500 ml-2">第三章</span>
+            </div>
+            <div class="flex items-center">
+                <span class="text-gray-500 mr-2">⏱️</span>
+                <span id="timer" class="timer font-medium text-gray-800">15:00</span>
+            </div>
+        </div>
+        
+        <!-- 进度条 -->
+        <div class="mt-3">
+            <div class="flex justify-between text-xs text-gray-500 mb-1">
+                <span>题目进度</span>
+                <span id="progress-text">1/10</span>
+            </div>
+            <div class="quiz-progress">
+                <div id="progress-fill" class="quiz-progress-fill" style="width: 10%"></div>
+            </div>
+        </div>
+    </header>
+    
+    <!-- 主内容 -->
+    <main class="flex-1 overflow-y-auto p-4" id="quiz-container">
+        <!-- 测试内容将通过JavaScript动态生成 -->
+    </main>
+    
+    <!-- 底部操作栏 -->
+    <div class="bg-white border-t border-gray-200 p-4 safe-bottom">
+        <div class="flex space-x-3">
+            <button id="prev-btn" 
+                    class="flex-1 py-3 bg-gray-100 text-gray-700 font-medium rounded-xl hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                    disabled>
+                上一题
+            </button>
+            <button id="next-btn" 
+                    class="flex-1 py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700">
+                下一题
+            </button>
+        </div>
+    </div>
+    
+    <!-- 原型导航 -->
+    <div class="fixed top-4 right-4 z-10">
+        <div class="bg-white rounded-full shadow-lg p-2">
+            <button onclick="window.location.href='../index.html'" 
+                    class="w-10 h-10 flex items-center justify-center text-gray-600 hover:text-blue-600">
+                ←
+            </button>
+        </div>
+    </div>
+    
+    <!-- 结果弹窗 -->
+    <div id="result-modal" class="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-white rounded-2xl w-full max-w-md p-6 transform scale-95 transition-transform">
+            <div class="text-center">
+                <div id="result-icon" class="text-6xl mb-4">🎉</div>
+                <h2 id="result-title" class="text-2xl font-bold text-gray-800 mb-2">测试完成！</h2>
+                <p id="result-score" class="text-lg text-gray-600 mb-6">得分: <span class="font-bold text-blue-600">85</span>/100</p>
+                
+                <div class="space-y-4 mb-6">
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">正确率</span>
+                        <span class="font-medium text-green-600">85%</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">用时</span>
+                        <span class="font-medium text-gray-800">12:45</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">获得积分</span>
+                        <span class="font-medium text-yellow-600">+30</span>
+                    </div>
+                </div>
+                
+                <div class="flex space-x-3">
+                    <button onclick="window.location.href='learning-player.html'" 
+                            class="flex-1 py-3 bg-gray-100 text-gray-700 font-medium rounded-xl hover:bg-gray-200">
+                        返回学习
+                    </button>
+                    <button onclick="window.location.href='course-detail.html'" 
+                            class="flex-1 py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700">
+                        查看详情
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // 测试数据
+        const quizData = [
+            {
+                id: 1,
+                type: 'single', // 单选题
+                question: '认知障碍患者最常见的环境安全隐患是什么？',
+                options: [
+                    { id: 'a', text: '地面湿滑', correct: true },
+                    { id: 'b', text: '光线不足', correct: false },
+                    { id: 'c', text: '噪音干扰', correct: false },
+                    { id: 'd', text: '温度过高', correct: false }
+                ],
+                explanation: '地面湿滑是认知障碍患者最常见的环境安全隐患，容易导致摔倒受伤。'
+            },
+            {
+                id: 2,
+                type: 'single',
+                question: '以下哪项不是认知障碍患者安全防护的基本原则？',
+                options: [
+                    { id: 'a', text: '预防为主', correct: false },
+                    { id: 'b', text: '全面评估', correct: false },
+                    { id: 'c', text: '限制自由', correct: true },
+                    { id: 'd', text: '持续改进', correct: false }
+                ],
+                explanation: '限制自由不是安全防护的原则，应该在保障安全的前提下尊重患者的自主权。'
+            },
+            {
+                id: 3,
+                type: 'multiple', // 多选题
+                question: '哪些措施可以有效预防认知障碍患者走失？',
+                options: [
+                    { id: 'a', text: '安装门禁系统', correct: true },
+                    { id: 'b', text: '佩戴定位设备', correct: true },
+                    { id: 'c', text: '设置明显标识', correct: true },
+                    { id: 'd', text: '24小时专人看护', correct: false }
+                ],
+                explanation: '门禁系统、定位设备和明显标识都是有效的预防措施，但24小时专人看护不现实且成本过高。'
+            },
+            {
+                id: 4,
+                type: 'single',
+                question: '对于有吞咽困难的认知障碍患者，饮食上应该注意什么？',
+                options: [
+                    { id: 'a', text: '提供流质食物', correct: true },
+                    { id: 'b', text: '加快进食速度', correct: false },
+                    { id: 'c', text: '减少水分摄入', correct: false },
+                    { id: 'd', text: '增加食物硬度', correct: false }
+                ],
+                explanation: '提供流质或半流质食物可以降低吞咽困难患者的窒息风险。'
+            },
+            {
+                id: 5,
+                type: 'judge', // 判断题
+                question: '认知障碍患者不需要进行日常活动能力训练。',
+                options: [
+                    { id: 'a', text: '正确', correct: false },
+                    { id: 'b', text: '错误', correct: true }
+                ],
+                explanation: '日常活动能力训练对维持认知障碍患者的功能非常重要。'
+            }
+        ];
+
+        // 测试状态
+        let currentQuestion = 0;
+        let userAnswers = {};
+        let startTime = Date.now();
+        let timerInterval;
+        let timeLeft = 15 * 60; // 15分钟，单位：秒
+
+        // 渲染当前题目
+        function renderQuestion() {
+            const container = document.getElementById('quiz-container');
+            const question = quizData[currentQuestion];
+            
+            let optionsHtml = '';
+            
+            if (question.type === 'single' || question.type === 'judge') {
+                // 单选题或判断题
+                optionsHtml = question.options.map(option => {
+                    const isSelected = userAnswers[question.id]?.includes(option.id);
+                    const isAnswered = userAnswers[question.id];
+                    let optionClass = 'option-item p-4 mb-3';
+                    
+                    if (isSelected) optionClass += ' selected';
+                    if (isAnswered) {
+                        if (option.correct) optionClass += ' correct';
+                        else if (isSelected) optionClass += ' incorrect';
+                    }
+                    
+                    return `
+                        <div class="${optionClass}" data-option="${option.id}">
+                            <div class="flex items-center">
+                                <div class="w-8 h-8 rounded-full border-2 flex items-center justify-center mr-3 ${isSelected ? 'border-blue-600 bg-blue-600 text-white' : 'border-gray-300'}">
+                                    ${option.id.toUpperCase()}
+                                </div>
+                                <div class="flex-1">
+                                    <div class="font-medium">${option.text}</div>
+                                </div>
+                                ${isAnswered ? (
+                                    option.correct ? 
+                                        '<span class="text-green-600 ml-2">✓</span>' : 
+                                        isSelected ? '<span class="text-red-600 ml-2">✗</span>' : ''
+                                ) : ''}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+                
+            } else if (question.type === 'multiple') {
+                // 多选题
+                optionsHtml = question.options.map(option => {
+                    const isSelected = userAnswers[question.id]?.includes(option.id);
+                    const isAnswered = userAnswers[question.id];
+                    let optionClass = 'option-item p-4 mb-3';
+                    
+                    if (isSelected) optionClass += ' selected';
+                    if (isAnswered) {
+                        if (option.correct) optionClass += ' correct';
+                        else if (isSelected && !option.correct) optionClass += ' incorrect';
+                    }
+                    
+                    return `
+                        <div class="${optionClass}" data-option="${option.id}">
+                            <div class="flex items-center">
+                                <div class="w-8 h-8 rounded-lg border-2 flex items-center justify-center mr-3 ${isSelected ? 'border-blue-600 bg-blue-600 text-white' : 'border-gray-300'}">
+                                    ${isSelected ? '✓' : ''}
+                                </div>
+                                <div class="flex-1">
+                                    <div class="font-medium">${option.text}</div>
+                                </div>
+                                ${isAnswered ? (
+                                    option.correct ? 
+                                        '<span class="text-green-600 ml-2">✓</span>' : 
+                                        isSelected && !option.correct ? '<span class="text-red-600 ml-2">✗</span>' : ''
+                                ) : ''}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+            
+            // 题目类型标签
+            let typeLabel = '';
+            switch(question.type) {
+                case 'single': typeLabel = '单选题'; break;
+                case 'multiple': typeLabel = '多选题'; break;
+                case 'judge': typeLabel = '判断题'; break;
+            }
+            
+            container.innerHTML = `
+                <div class="question-card bg-white rounded-2xl p-6 mb-6">
+                    <div class="flex justify-between items-start mb-6">
+                        <div>
+                            <span class="inline-block px-3 py-1 bg-blue-100 text-blue-800 text-sm font-medium rounded-full mb-2">
+                                ${typeLabel}
+                            </span>
+                            <h2 class="text-lg font-bold text-gray-800">${question.question}</h2>
+                        </div>
+                        <div class="text-sm text-gray-500">
+                            第 ${currentQuestion + 1} 题
+                        </div>
+                    </div>
+                    
+                    <div class="options-container">
+                        ${optionsHtml}
+                    </div>
+                    
+                    ${userAnswers[question.id] ? `
+                        <div class="mt-6 p-4 bg-gray-50 rounded-xl">
+                            <div class="flex items-center mb-2">
+                                <span class="text-blue-600 mr-2">💡</span>
+                                <span class="font-medium text-gray-800">答案解析</span>
+                            </div>
+                            <p class="text-gray-600 text-sm">${question.explanation}</p>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+            
+            // 更新进度
+            updateProgress();
+            
+            // 设置选项点击事件
+            setupOptionClick();
+        }
+
+        // 设置选项点击事件
+        function setupOptionClick() {
+            document.querySelectorAll('.option-item').forEach(option => {
+                option.addEventListener('click', function() {
+                    const question = quizData[currentQuestion];
+                    const optionId = this.dataset.option;
+                    
+                    if (userAnswers[question.id]) {
+                        // 如果已经回答过，不允许修改
+                        return;
+                    }
+                    
+                    if (question.type === 'single' || question.type === 'judge') {
+                        // 单选题或判断题：单选
+                        userAnswers[question.id] = [optionId];
+                    } else if (question.type === 'multiple') {
+                        // 多选题：多选
+                        if (!userAnswers[question.id]) {
+                            userAnswers[question.id] = [];
+                        }
+                        
+                        const index = userAnswers[question.id].indexOf(optionId);
+                        if (index === -1) {
+                            userAnswers[question.id].push(optionId);
+                        } else {
+                            userAnswers[question.id].splice(index, 1);
+                        }
+                    }
+                    
+                    // 重新渲染题目
+                    renderQuestion();
+                    
+                    // 更新按钮状态
+                    updateButtonState();
+                });
+            });
+        }
+
+        // 更新进度
+        function updateProgress() {
+            const progress = ((currentQuestion + 1) / quizData.length) * 100;
+            document.getElementById('progress-fill').style.width = progress + '%';
+            document.getElementById('progress-text').textContent = `${currentQuestion + 1}/${quizData.length}`;
+        }
+
+        // 更新按钮状态
+        function updateButtonState() {
+            const prevBtn = document.getElementById('prev-btn');
+            const nextBtn = document.getElementById('next-btn');
+            const question = quizData[currentQuestion];
+            
+            // 上一题按钮
+            prevBtn.disabled = currentQuestion === 0;
+            
+            // 下一题按钮
+            if (currentQuestion === quizData.length - 1) {
+                nextBtn.textContent = '提交测试';
+                nextBtn.className = 'flex-1 py-3 bg-green-600 text-white font-bold rounded-xl hover:bg-green-700';
+            } else {
+                nextBtn.textContent = '下一题';
+                nextBtn.className = 'flex-1 py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700';
+            }
+            
+            // 如果当前题目已回答，启用下一题按钮
+            nextBtn.disabled = !userAnswers[question.id];
+        }
+
+        // 计算得分
+        function calculateScore() {
+            let score = 0;
+            let correctCount = 0;
+            
+            quizData.forEach(question => {
+                const userAnswer = userAnswers[question.id];
+                if (!userAnswer) return;
+                
+                if (question.type === 'single' || question.type === 'judge') {
+                    // 单选题或判断题
+                    if (userAnswer.length === 1) {
+                        const selectedOption = question.options.find(opt => opt.id === userAnswer[0]);
+                        if (selectedOption && selectedOption.correct) {
+                            score += 20; // 每题20分
+                            correctCount++;
+                        }
+                    }
+                } else if (question.type === 'multiple') {
+                    // 多选题
+                    const correctOptions = question.options.filter(opt => opt.correct).map(opt => opt.id);
+                    const userSelected = userAnswer || [];
+                    
+                    // 全对才得分
+                    if (correctOptions.length === userSelected.length && 
+                        correctOptions.every(opt => userSelected.includes(opt))) {
+                        score += 20;
+                        correctCount++;
+                    }
+                }
+            });
+            
+            return {
+                score: Math.min(score, 100),
+                correctCount: correctCount,
+                totalQuestions: quizData.length,
+                accuracy: Math.round((correctCount / quizData.length) * 100)
+            };
+        }
+
+        // 显示结果
+        function showResults() {
+            clearInterval(timerInterval);
+            
+            const results = calculateScore();
+            const modal = document.getElementById('result-modal');
+            const icon = document.getElementById('result-icon');
+            const title = document.getElementById('result-title');
+            const score = document.getElementById('result-score');
+            
+            // 根据得分设置结果
+            if (results.score >= 80) {
+                icon.textContent = '🎉';
+                icon.classList.add('celebrate');
+                title.textContent = '优秀！测试通过';
+            } else if (results.score >= 60) {
+                icon.textContent = '👍';
+                title.textContent = '良好！继续努力';
+            } else {
+                icon.textContent = '📚';
+                title.textContent = '需要加强学习';
+            }
+            
+            score.innerHTML = `得分: <span class="font-bold text-blue-600">${results.score}</span>/100`;
+            
+            // 显示模态框
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.querySelector('.bg-white').style.transform = 'scale(1)';
+            }, 10);
+        }
+
+        // 更新计时器
+        function updateTimer() {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            document.getElementById('timer').textContent = 
+                `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                showResults();
+            } else {
+                timeLeft--;
+            }
+        }
+
+        // 页面初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 初始渲染
+            renderQuestion();
+            updateButtonState();
+            
+            // 开始计时器
+            timerInterval = setInterval(updateTimer, 1000);
+            
+            // 上一题按钮
+            document.getElementById('prev-btn').addEventListener('click', function() {
+                if (currentQuestion > 0) {
+                    currentQuestion--;
+                    renderQuestion();
+                    updateButtonState();
+                }
+            });
+            
+            // 下一题/提交按钮
+            document.getElementById('next-btn').addEventListener('click', function() {
+                if (currentQuestion < quizData.length - 1) {
+                    currentQuestion++;
+                    renderQuestion();
+                    updateButtonState();
+                } else {
+                    // 提交测试
+                    showResults();
+                }
+            });
+            
+            // 关闭结果模态框
+            document.getElementById('result-modal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    this.classList.add('hidden');
+                }
+            });
+            
+            // 键盘导航
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'ArrowLeft' && currentQuestion > 0) {
+                    currentQuestion--;
+                    renderQuestion();
+                    updateButtonState();
+                } else if (e.key === 'ArrowRight' && currentQuestion < quizData.length - 1) {
+                    currentQuestion++;
+                    renderQuestion();
+                    updateButtonState();
+                } else if (e.key === 'Enter' && document.getElementById('next-btn').disabled === false) {
+                    document.getElementById('next-btn').click();
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>首页仪表板 - 知行中国志愿者学习端</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* 移动端适配 */
+        @media (max-width: 640px) {
+            .mobile-container {
+                max-width: 100%;
+                margin: 0 auto;
+            }
+        }
+        
+        /* 底部导航栏 */
+        .tab-bar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+        }
+        
+        /* 卡片样式 */
+        .dashboard-card {
+            transition: all 0.3s ease;
+            border-radius: 16px;
+            overflow: hidden;
+        }
+        .dashboard-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* 进度条样式 */
+        .progress-bar {
+            height: 6px;
+            border-radius: 3px;
+            background: linear-gradient(90deg, #3b82f6 0%, #8b5cf6 100%);
+            transition: width 0.5s ease;
+        }
+        
+        /* 安全区域适配 */
+        .safe-top {
+            padding-top: env(safe-area-inset-top);
+        }
+        .safe-bottom {
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+        
+        /* 动画效果 */
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        .pulse-animation {
+            animation: pulse 2s ease-in-out infinite;
+        }
+        
+        /* 徽章样式 */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        .badge-primary {
+            background: rgba(59, 130, 246, 0.1);
+            color: #3b82f6;
+        }
+        .badge-success {
+            background: rgba(34, 197, 94, 0.1);
+            color: #16a34a;
+        }
+        .badge-warning {
+            background: rgba(245, 158, 11, 0.1);
+            color: #d97706;
+        }
+        
+        /* 滚动条样式 */
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen flex flex-col mobile-container">
+    <!-- 状态栏模拟 -->
+    <div class="bg-white safe-top">
+        <div class="flex justify-between items-center px-4 py-2">
+            <div class="text-sm font-medium">9:41</div>
+            <div class="flex space-x-1">
+                <div class="w-4 h-4 bg-gray-800 rounded-full"></div>
+                <div class="w-4 h-4 bg-gray-800 rounded-full"></div>
+                <div class="w-4 h-4 bg-gray-800 rounded-full"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 顶部导航 -->
+    <header class="bg-white border-b border-gray-200 px-4 py-3">
+        <div class="flex justify-between items-center">
+            <div class="flex items-center">
+                <div class="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center mr-3">
+                    <span class="text-white text-lg">🧠</span>
+                </div>
+                <div>
+                    <h1 class="font-bold text-gray-800">知行中国</h1>
+                    <p class="text-xs text-gray-500">脑健康志愿者</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center space-x-3">
+                <button class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200">
+                    <span class="text-gray-600">🔔</span>
+                    <span class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">3</span>
+                </button>
+                <button class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200">
+                    <span class="text-gray-600">🔍</span>
+                </button>
+            </div>
+        </div>
+    </header>
+    
+    <!-- 主内容 -->
+    <main class="flex-1 overflow-y-auto scrollbar-hide p-4">
+        <!-- 欢迎区域 -->
+        <div class="mb-6">
+            <div class="flex justify-between items-center mb-2">
+                <h2 class="text-xl font-bold text-gray-800">下午好，张明！</h2>
+                <span class="text-sm text-gray-500">2026-03-13</span>
+            </div>
+            <p class="text-gray-600">今天的学习计划已为您准备好</p>
+        </div>
+        
+        <!-- 学习进度卡片 -->
+        <div class="dashboard-card bg-white mb-6 p-5">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="font-bold text-gray-800">📊 学习进度</h3>
+                <span class="text-sm text-blue-600 font-medium">查看详情 →</span>
+            </div>
+            
+            <div class="space-y-4">
+                <!-- 总体进度 -->
+                <div>
+                    <div class="flex justify-between text-sm mb-1">
+                        <span class="text-gray-700">总体进度</span>
+                        <span class="font-medium text-blue-600">65%</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2">
+                        <div class="progress-bar" style="width: 65%"></div>
+                    </div>
+                </div>
+                
+                <!-- 当前课程 -->
+                <div class="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 bg-white rounded-lg flex items-center justify-center mr-3">
+                            <span class="text-blue-600 text-xl">🧑‍⚕️</span>
+                        </div>
+                        <div>
+                            <h4 class="font-medium text-gray-800">认知障碍基础护理</h4>
+                            <p class="text-xs text-gray-500">第3章/共8章</p>
+                        </div>
+                    </div>
+                    <button onclick="window.location.href='course-detail.html'" 
+                            class="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700">
+                        继续学习
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 今日任务 -->
+        <div class="dashboard-card bg-white mb-6 p-5">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="font-bold text-gray-800">✅ 今日任务</h3>
+                <span class="text-sm text-gray-500">3/5 已完成</span>
+            </div>
+            
+            <div class="space-y-3">
+                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div class="flex items-center">
+                        <div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center mr-3">
+                            <span class="text-green-600">✓</span>
+                        </div>
+                        <div>
+                            <h4 class="font-medium text-gray-800">完成每日签到</h4>
+                            <p class="text-xs text-gray-500">+10积分</p>
+                        </div>
+                    </div>
+                    <span class="badge badge-success">已完成</span>
+                </div>
+                
+                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div class="flex items-center">
+                        <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center mr-3">
+                            <span class="text-blue-600">🎬</span>
+                        </div>
+                        <div>
+                            <h4 class="font-medium text-gray-800">学习课程视频</h4>
+                            <p class="text-xs text-gray-500">30分钟，+50积分</p>
+                        </div>
+                    </div>
+                    <span class="badge badge-primary">进行中</span>
+                </div>
+                
+                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div class="flex items-center">
+                        <div class="w-8 h-8 rounded-full bg-yellow-100 flex items-center justify-center mr-3">
+                            <span class="text-yellow-600">📝</span>
+                        </div>
+                        <div>
+                            <h4 class="font-medium text-gray-800">完成章节测试</h4>
+                            <p class="text-xs text-gray-500">+30积分</p>
+                        </div>
+                    </div>
+                    <span class="badge badge-warning">待完成</span>
+                </div>
+                
+                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div class="flex items-center">
+                        <div class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center mr-3">
+                            <span class="text-gray-600">💬</span>
+                        </div>
+                        <div>
+                            <h4 class="font-medium text-gray-800">参与社区讨论</h4>
+                            <p class="text-xs text-gray-500">+20积分</p>
+                        </div>
+                    </div>
+                    <span class="badge badge-warning">待完成</span>
+                </div>
+            </div>
+            
+            <button onclick="window.location.href='practice-scenarios.html'" 
+                    class="w-full mt-4 py-3 bg-gradient-to-r from-blue-50 to-purple-50 text-blue-600 font-medium rounded-lg border border-blue-200 hover:border-blue-300">
+                查看所有任务
+            </button>
+        </div>
+        
+        <!-- 快速入口 -->
+        <div class="dashboard-card bg-white mb-6 p-5">
+            <h3 class="font-bold text-gray-800 mb-4">🚀 快速入口</h3>
+            
+            <div class="grid grid-cols-4 gap-3">
+                <button onclick="window.location.href='course-list.html'" 
+                        class="flex flex-col items-center p-3 bg-gray-50 rounded-xl hover:bg-gray-100">
+                    <span class="text-2xl mb-2">📚</span>
+                    <span class="text-xs font-medium text-gray-700">课程</span>
+                </button>
+                
+                <button onclick="window.location.href='practice-scenarios.html'" 
+                        class="flex flex-col items-center p-3 bg-gray-50 rounded-xl hover:bg-gray-100">
+                    <span class="text-2xl mb-2">🎮</span>
+                    <span class="text-xs font-medium text-gray-700">实践</span>
+                </button>
+                
+                <button onclick="window.location.href='community-feed.html'" 
+                        class="flex flex-col items-center p-3 bg-gray-50 rounded-xl hover:bg-gray-100">
+                    <span class="text-2xl mb-2">💬</span>
+                    <span class="text-xs font-medium text-gray-700">社区</span>
+                </button>
+                
+                <button onclick="window.location.href='profile-achievements.html'" 
+                        class="flex flex-col items-center p-3 bg-gray-50 rounded-xl hover:bg-gray-100">
+                    <span class="text-2xl mb-2">🏆</span>
+                    <span class="text-xs font-medium text-gray-700">成就</span>
+                </button>
+            </div>
+        </div>
+        
+        <!-- 推荐课程 -->
+        <div class="dashboard-card bg-white mb-6 p-5">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="font-bold text-gray-800">🔥 推荐课程</h3>
+                <span class="text-sm text-blue-600 font-medium">更多 →</span>
+            </div>
+            
+            <div class="space-y-3">
+                <div class="flex items-center p-3 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg">
+                    <div class="w-16 h-16 bg-white rounded-lg flex items-center justify-center mr-3">
+                        <span class="text-blue-600 text-2xl">👵</span>
+                    </div>
+                    <div class="flex-1">
+                        <h4 class="font-medium text-gray-800 mb-1">老年痴呆症护理技巧</h4>
+                        <div class="flex items-center text-xs text-gray-500 mb-2">
+                            <span class="mr-3">⭐ 4.8</span>
+                            <span>🕒 2.5小时</span>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center mr-2">
+                                <span class="text-blue-600 text-xs">王</span>
+                            </div>
+                            <span class="text-xs text-gray-600">王教授 · 神经科专家</span>
+                        </div>
+                    </div>
+                    <button onclick="window.location.href='course-detail.html'" 
+                            class="px-3 py-1 bg-white text-blue-600 text-sm font-medium rounded-lg border border-blue-200 hover:bg-blue-50">
+                        查看
+                    </button>
+                </div>
+                
+                <div class="flex items-center p-3 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg">
+                    <div class="w-16 h-16 bg-white rounded-lg flex items-center justify-center mr-3">
+                        <span class="text-green-600 text-2xl">🗣️</span>
+                    </div>
+                    <div class="flex-1">
+                        <h4 class="font-medium text-gray-800 mb-1">有效沟通技巧训练</h4>
+                        <div class="flex items-center text-xs text-gray-500 mb-2">
+                            <span class="mr-3">⭐ 4.9</span>
+                            <span>🕒 1.5小时</span>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center mr-2">
+                                <span class="text-green-600 text-xs">李</span>
+                            </div>
+                            <span class="text-xs text-gray-600">李医生 · 心理治疗师</span>
+                        </div>
+                    </div>
+                    <button onclick="window.location.href='course-detail.html'" 
+                            class="px-3 py-1 bg-white text-green-600 text-sm font-medium rounded-lg border border-green-200 hover:bg-green-50">
+                        查看
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 统计数据 -->
+        <div class="dashboard-card bg-white p-5">
+            <h3 class="font-bold text-gray-800 mb-4">📈 学习统计</h3>
+            
+            <div class="grid grid-cols-2 gap-4">
+                <div class="bg-blue-50 rounded-xl p-4">
+                    <div class="text-2xl font-bold text-blue-600 mb-1">156</div>
+                    <div class="text-sm text-gray-600">学习小时数</div>
+                    <div class="text-xs text-gray-500 mt-1">本月 +24小时</div>
+                </div>
+                
+                <div class="bg-green-50 rounded-xl p-4">
+                    <div class="text-2xl font-bold text-green-600 mb-1">8</div>
+                    <div class="text-sm text-gray-600">完成课程</div>
+                    <div class="text-xs text-gray-500 mt-1">本月 +2课程</div>
+                </div>
+                
+                <div class="bg-purple-50 rounded-xl p-4">
+                    <div class="text-2xl font-bold text-purple-600 mb-1">2,450</div>
+                    <div class="text-sm text-gray-600">积分总数</div>
+                    <div class="text-xs text-gray-500 mt-1">排名前 15%</div>
+                </div>
+                
+                <div class="bg-yellow-50 rounded-xl p-4">
+                    <div class="text-2xl font-bold text-yellow-600 mb-1">12</div>
+                    <div class="text-sm text-gray-600">获得徽章</div>
+                    <div class="text-xs text-gray-500 mt-1">本月 +3徽章</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 底部留白 -->
+        <div class="h-20"></div>
+    </main>
+    
+    <!-- 底部导航栏 -->
+    <nav class="tab-bar safe-bottom">
+        <div class="flex justify-around items-center px-2 py-3">
+            <a href="home-dashboard.html" class="flex flex-col items-center text-blue-600">
+                <span class="text-2xl mb-1">🏠</span>
+                <span class="text-xs font-medium">首页</span>
+            </a>
+            
+            <a href="course-list.html" class="flex flex-col items-center text-gray-500 hover:text-blue-600">
+                <span class="text-2xl mb-1">📚</span>
+                <span class="text-xs">课程</span>
+            </a>
+            
+            <a href="practice-scenarios.html" class="flex flex-col items-center text-gray-500 hover:text-blue-600">
+                <span class="text-2xl mb-1">🎮</span>
+                <span class="text-xs">实践</span>
+            </a>
+            
+            <a href="community-feed.html" class="flex flex-col items-center text-gray-500 hover:text-blue-600">
+                <span class="text-2xl mb-1">💬</span>
+                <span class="text-xs">社区</span>
+            </a>
+            
+            <a href="profile-overview.html" class="flex flex-col items-center text-gray-500 hover:text-blue-600">
+                <span class="text-2xl mb-1">👤</span>
+                <span class="text-xs">我的</span>
+            </a>
+        </div>
+    </nav>
+    
+    <!-- 原型导航 -->
+    <div class="fixed top-4 right-4 z-10">
+        <div class="bg-white rounded-full shadow-lg p-2">
+            <button onclick="window.location.href='../index.html'" 
+                    class="w-10 h-10 flex items-center justify-center text-gray-600 hover:text-blue-600">
+                ←
+            </button>
+        </div>
+    </div>
+    
+    <script>
+        // 页面初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 模拟数据加载
+            simulateDataLoading();
+            
+            // 设置任务点击事件
+            setupTaskInteractions();
+            
+            // 设置卡片悬停效果
+            setupCardHoverEffects();
+        });
+        
+        // 模拟数据加载
+        function simulateDataLoading() {
+            const loadingElements = document.querySelectorAll('.pulse-animation');
+            loadingElements.forEach(el => {
+                setTimeout(() => {
+                    el.classList.remove('pulse-animation');
+                }, 1500);
+            });
+        }
+        
+        // 设置任务交互
+        function setupTaskInteractions() {
+            const tasks = document.querySelectorAll('.bg-gray-50.rounded-lg');
+            tasks.forEach(task => {
+                task.addEventListener('click', function() {
+                    const badge = this.querySelector('.badge');
+                    if (badge && badge.textContent === '待完成') {
+                        badge.textContent = '进行中';
+                        badge.className = 'badge badge-primary';
+                        
+                        // 添加完成动画
+                        this.style.transform = 'scale(0.98)';
+                        setTimeout(() => {
+                            this.style.transform = '';
+                        }, 200);
+                    }
+                });
+            });
+        }
+        
+        // 设置卡片悬停效果
+        function setupCardHoverEffects() {
+            const cards = document.querySelectorAll('.dashboard-card');
+            cards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-4px)';
+                    this.style.boxShadow = '0 10px 25px rgba(0, 0, 0, 0.1)';
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = '';
+                    this.style.boxShadow = '';
+                });
+                
+                // 移动端触摸效果
+                card.addEventListener('touchstart', function() {
+                    this.style.transform = 'scale(0.98)';
+                });
+                
+                card.addEventListener('touchend', function() {
+                    this.style.transform = '';
+                });
+            });
+        }
+        
+        // 刷新数据
+        function refreshData() {
+            const refreshBtn = document.querySelector('button[onclick*="refresh"]');
+            if (refreshBtn) {
+                refreshBtn.disabled = true;
+                refreshBtn.innerHTML = '<span class="loading-spinner"></span> 刷新中...';
+                
+                setTimeout(() => {
+                    // 模拟数据更新
+                    const stats = document.querySelectorAll('.text-2xl.font-bold');
+                    if (stats.length >= 4) {
+                        stats[0].textContent = Math.floor(Math.random() * 50) + 150;
+                        stats[1].textContent = Math.floor(Math.random() * 3) + 8;
+                        stats[2].textContent = Math.floor(Math.random() * 500) + 2400;
+                        stats[3].textContent = Math.floor(Math.random() * 3) + 12;
+                    }
+                    
+                    refreshBtn.disabled = false;
+                    refreshBtn.textContent = '刷新完成 ✓';
+                    
+                    setTimeout(() => {
+                        refreshBtn.textContent = '🔄 刷新';
+                    }, 2000);
+                }, 1500);
+            }
+        }
+        
+        // 通知提醒
+        function showNotification() {
+            const notification = document.createElement('div');
+            notification.className = 'fixed top-20 left-4 right-4 bg-white rounded-xl shadow-lg p-4 z-50 transform -translate-y-10 opacity-0 transition-all duration-300';
+            notification.innerHTML = `
+                <div class="flex items-center">
+                    <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+                        <span class="text-blue-600">🔔</span>
+                    </div>
+                    <div class="flex-1">
+                        <h4 class="font-medium text-gray-800">新任务已发布</h4>
+                        <p class="text-sm text-gray-600">"认知障碍沟通技巧"实践任务</p>
+                    </div>
+                    <button onclick="this.parentElement.parentElement.remove()" class="text-gray-400 hover:text-gray-600">
+                        ✕
+                    </button>
+                </div>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.transform = 'translateY(0)';
+                notification.style.opacity = '1';
+            }, 10);
+            
+            setTimeout(() => {
+                notification.style.transform = 'translateY(-10px)';
+                notification.style.opacity = '0';
+                setTimeout(() => notification.remove(), 300);
+            }, 5000);
+        }
+        
+        // 自动显示通知（演示用）
+        setTimeout(showNotification, 3000);
+    </script>
+</body>
+</html>
