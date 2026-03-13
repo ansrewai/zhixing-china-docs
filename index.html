@@ -587,7 +587,8 @@
                 type: 'onboarding',
                 path: 'prototypes/volunteer-learning/onboarding-welcome.html',
                 thumbnail: '🎯',
-                priority: 1
+                priority: 1,
+                status: 'completed'
             },
             {
                 id: 'onboarding-login',
@@ -596,7 +597,8 @@
                 type: 'onboarding',
                 path: 'prototypes/volunteer-learning/onboarding-login.html',
                 thumbnail: '🔐',
-                priority: 2
+                priority: 2,
+                status: 'completed'
             },
             {
                 id: 'home-dashboard',
@@ -605,7 +607,8 @@
                 type: 'learning',
                 path: 'prototypes/volunteer-learning/home-dashboard.html',
                 thumbnail: '🏠',
-                priority: 1
+                priority: 1,
+                status: 'completed'
             },
             {
                 id: 'course-list',
@@ -614,7 +617,8 @@
                 type: 'learning',
                 path: 'prototypes/volunteer-learning/course-list.html',
                 thumbnail: '📚',
-                priority: 2
+                priority: 2,
+                status: 'completed'
             },
             {
                 id: 'course-detail',
@@ -623,7 +627,8 @@
                 type: 'learning',
                 path: 'prototypes/volunteer-learning/course-detail.html',
                 thumbnail: '📖',
-                priority: 3
+                priority: 3,
+                status: 'completed'
             },
             {
                 id: 'learning-player',
@@ -632,7 +637,8 @@
                 type: 'learning',
                 path: 'prototypes/volunteer-learning/learning-player.html',
                 thumbnail: '🎬',
-                priority: 4
+                priority: 4,
+                status: 'completed'
             },
             {
                 id: 'quiz-exam',
@@ -641,7 +647,8 @@
                 type: 'learning',
                 path: 'prototypes/volunteer-learning/quiz-exam.html',
                 thumbnail: '📝',
-                priority: 5
+                priority: 5,
+                status: 'completed'
             },
             {
                 id: 'practice-scenarios',
@@ -650,7 +657,8 @@
                 type: 'practice',
                 path: 'prototypes/volunteer-learning/practice-scenarios.html',
                 thumbnail: '🎮',
-                priority: 1
+                priority: 1,
+                status: 'completed'
             },
             {
                 id: 'practice-simulation',
@@ -659,7 +667,8 @@
                 type: 'practice',
                 path: 'prototypes/volunteer-learning/practice-simulation.html',
                 thumbnail: '👥',
-                priority: 2
+                priority: 2,
+                status: 'planned'
             },
             {
                 id: 'community-feed',
@@ -668,7 +677,8 @@
                 type: 'community',
                 path: 'prototypes/volunteer-learning/community-feed.html',
                 thumbnail: '💬',
-                priority: 1
+                priority: 1,
+                status: 'planned'
             },
             {
                 id: 'community-discussion',
@@ -677,7 +687,8 @@
                 type: 'community',
                 path: 'prototypes/volunteer-learning/community-discussion.html',
                 thumbnail: '🗣️',
-                priority: 2
+                priority: 2,
+                status: 'planned'
             },
             {
                 id: 'profile-overview',
@@ -686,7 +697,8 @@
                 type: 'profile',
                 path: 'prototypes/volunteer-learning/profile-overview.html',
                 thumbnail: '👤',
-                priority: 1
+                priority: 1,
+                status: 'planned'
             },
             {
                 id: 'profile-achievements',
@@ -695,7 +707,8 @@
                 type: 'profile',
                 path: 'prototypes/volunteer-learning/profile-achievements.html',
                 thumbnail: '🏆',
-                priority: 2
+                priority: 2,
+                status: 'planned'
             },
             {
                 id: 'profile-settings',
@@ -704,7 +717,8 @@
                 type: 'profile',
                 path: 'prototypes/volunteer-learning/profile-settings.html',
                 thumbnail: '⚙️',
-                priority: 3
+                priority: 3,
+                status: 'planned'
             }
         ];
 
@@ -739,23 +753,51 @@
                     'profile': '个人中心'
                 }[proto.type] || '其他';
                 
+                // 状态标签
+                const statusClass = {
+                    'completed': 'bg-green-100 text-green-800',
+                    'in-progress': 'bg-yellow-100 text-yellow-800',
+                    'planned': 'bg-gray-100 text-gray-800'
+                }[proto.status] || 'bg-gray-100 text-gray-800';
+                
+                const statusText = {
+                    'completed': '已完成',
+                    'in-progress': '进行中',
+                    'planned': '计划中'
+                }[proto.status] || '计划中';
+                
+                // 按钮状态
+                let buttonHtml = '';
+                if (proto.status === 'completed') {
+                    buttonHtml = `
+                        <a href="${proto.path}" target="_blank"
+                           class="px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white text-sm font-medium rounded-lg transition-all transform hover:scale-105">
+                            查看原型
+                        </a>
+                    `;
+                } else {
+                    buttonHtml = `
+                        <button class="px-4 py-2 bg-gray-200 text-gray-600 text-sm font-medium rounded-lg cursor-not-allowed" disabled>
+                            即将推出
+                        </button>
+                    `;
+                }
+                
                 const card = document.createElement('div');
                 card.className = 'prototype-card bg-white rounded-xl border border-gray-200 p-5 hover:shadow-lg transition-shadow';
                 card.innerHTML = `
                     <div class="flex justify-between items-start mb-4">
                         <div class="text-3xl">${proto.thumbnail}</div>
-                        <div>
+                        <div class="flex flex-col items-end gap-1">
                             <span class="${typeClass} px-3 py-1 rounded-full text-xs font-medium">${typeName}</span>
+                            <span class="${statusClass} px-2 py-0.5 rounded-full text-xs">${statusText}</span>
                         </div>
                     </div>
                     <h3 class="text-lg font-bold text-gray-800 mb-2">${proto.title}</h3>
                     <p class="text-gray-600 text-sm mb-4">${proto.description}</p>
                     <div class="flex justify-between items-center">
                         <div class="text-xs text-gray-500">移动端页面</div>
-                        <a href="${proto.path}" target="_blank"
-                           class="px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white text-sm font-medium rounded-lg transition-all transform hover:scale-105">
-                            查看原型
-                        </a>
+                        ${buttonHtml}
                     </div>
                 `;
                 container.appendChild(card);
@@ -855,6 +897,10 @@
         document.addEventListener('DOMContentLoaded', function() {
             // 初始渲染所有文档
             renderDocumentCards('all');
+            
+            // 初始渲染原型卡片（确保原型部分有内容）
+            renderPrototypeCards('all');
+            setupPrototypeFilter();
             
             // 设置搜索功能
             setupSearch();
