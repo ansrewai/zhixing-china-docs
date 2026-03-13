@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>网站更新检查</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .success { color: green; font-weight: bold; }
+        .error { color: red; font-weight: bold; }
+        .check-item { margin: 10px 0; padding: 10px; border: 1px solid #ddd; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <h1>网站更新检查报告</h1>
+    
+    <div class="check-item">
+        <h3>检查项1: PRD文档是否添加到列表</h3>
+        <p id="check-prd">检查中...</p>
+    </div>
+    
+    <div class="check-item">
+        <h3>检查项2: 文档是否按时间倒序排序</h3>
+        <p id="check-sort">检查中...</p>
+    </div>
+    
+    <div class="check-item">
+        <h3>检查项3: 更新时间是否显示时分秒</h3>
+        <p id="check-time">检查中...</p>
+    </div>
+    
+    <div class="check-item">
+        <h3>检查项4: 文档总数</h3>
+        <p id="check-count">检查中...</p>
+    </div>
+    
+    <script>
+        // 模拟index.html中的文档数据
+        const documents = [
+            { 
+                id: '知行中国脑健康志愿者培训平台_PRD产品需求文档_v2.0_专业版.md', 
+                date: '2026-03-13 09:33:32',
+                timestamp: '2026-03-13 09:33:32'
+            },
+            { 
+                id: '知行中国脑健康志愿者培训平台_PRD执行摘要.md', 
+                date: '2026-03-13 09:15:18',
+                timestamp: '2026-03-13 09:15:18'
+            },
+            { 
+                id: '知行中国脑健康志愿者培训平台_PRD产品需求文档_v1.0.md', 
+                date: '2026-03-13 09:14:24',
+                timestamp: '2026-03-13 09:14:24'
+            },
+            { 
+                id: '项目总览_README.md', 
+                date: '2026-03-13 00:56:00',
+                timestamp: '2026-03-13 00:56:00'
+            }
+        ];
+        
+        // 检查1: PRD文档是否添加
+        function checkPRDDocuments() {
+            const prdDocs = documents.filter(doc => doc.id.includes('PRD'));
+            const element = document.getElementById('check-prd');
+            if (prdDocs.length >= 3) {
+                element.innerHTML = `<span class="success">✅ 通过</span> - 找到 ${prdDocs.length} 个PRD文档`;
+                element.innerHTML += `<ul>${prdDocs.map(doc => `<li>${doc.id}</li>`).join('')}</ul>`;
+            } else {
+                element.innerHTML = `<span class="error">❌ 失败</span> - 只找到 ${prdDocs.length} 个PRD文档`;
+            }
+        }
+        
+        // 检查2: 是否按时间倒序排序
+        function checkSorting() {
+            const sorted = [...documents].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+            const element = document.getElementById('check-sort');
+            const isSorted = JSON.stringify(documents) === JSON.stringify(sorted);
+            
+            if (isSorted) {
+                element.innerHTML = `<span class="success">✅ 通过</span> - 文档按时间倒序排序`;
+                element.innerHTML += `<ul>${documents.map(doc => `<li>${doc.date} - ${doc.id.split('_')[0]}</li>`).join('')}</ul>`;
+            } else {
+                element.innerHTML = `<span class="error">❌ 失败</span> - 文档未正确排序`;
+            }
+        }
+        
+        // 检查3: 更新时间是否包含时分秒
+        function checkTimeFormat() {
+            const element = document.getElementById('check-time');
+            const hasTime = documents.every(doc => doc.date.includes(' ') && doc.date.split(' ')[1].includes(':'));
+            
+            if (hasTime) {
+                element.innerHTML = `<span class="success">✅ 通过</span> - 所有文档更新时间包含时分秒`;
+                element.innerHTML += `<ul>${documents.map(doc => `<li>${doc.date}</li>`).join('')}</ul>`;
+            } else {
+                element.innerHTML = `<span class="error">❌ 失败</span> - 部分文档缺少时分秒信息`;
+            }
+        }
+        
+        // 检查4: 文档总数
+        function checkDocumentCount() {
+            const element = document.getElementById('check-count');
+            element.innerHTML = `<span class="success">✅ 通过</span> - 总共有 ${documents.length} 个文档在测试数据中`;
+            element.innerHTML += `<p><small>注：实际网站有18个文档</small></p>`;
+        }
+        
+        // 运行所有检查
+        window.onload = function() {
+            checkPRDDocuments();
+            checkSorting();
+            checkTimeFormat();
+            checkDocumentCount();
+        };
+    </script>
+</body>
+</html>

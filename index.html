@@ -177,89 +177,174 @@
     </div>
 
     <script>
-        // 文档数据
+        // 文档数据 - 包含所有文档，按时间倒序排序
         const documents = [
             { 
-                id: '项目总览_README.md', 
-                title: '项目总览：知行中国脑健康志愿者培训平台',
-                description: '项目整体介绍、愿景、技术栈、里程碑、团队架构和预算规划',
+                id: '知行中国脑健康志愿者培训平台_PRD产品需求文档_v2.0_专业版.md', 
+                title: 'PRD产品需求文档 v2.0（专业版）',
+                description: '基于墨刀PRD标准的专业产品需求文档，包含6大核心模块：产品概述、功能需求、非功能性需求、交互设计、技术约束、测试标准',
                 category: 'core',
-                date: '2026-03-12',
-                size: '5.4KB'
+                date: '2026-03-13 09:33:32',
+                size: '60KB',
+                timestamp: '2026-03-13 09:33:32'
             },
             { 
-                id: '知行中国_2026脑健康管理平台_分析报告.md', 
-                title: '2026脑健康管理平台分析报告',
-                description: '知行中国项目核心分析报告，包含市场分析、用户需求、商业模式等',
+                id: '知行中国脑健康志愿者培训平台_PRD执行摘要.md', 
+                title: 'PRD执行摘要',
+                description: 'PRD文档的3分钟快速阅读版，包含核心要点、市场机会、商业模式、发展路线等关键信息',
                 category: 'core',
-                date: '2026-01-31',
-                size: '2.1KB'
+                date: '2026-03-13 09:15:18',
+                size: '5KB',
+                timestamp: '2026-03-13 09:15:18'
             },
             { 
-                id: '知行中国_2026脑健康管理平台_详细分析.md', 
-                title: '2026脑健康管理平台详细分析',
-                description: '项目详细分析，包含技术架构、运营模式、风险评估等',
+                id: '知行中国脑健康志愿者培训平台_PRD产品需求文档_v1.0.md', 
+                title: 'PRD产品需求文档 v1.0',
+                description: '初始版本PRD文档，整合所有现有文档形成的完整产品需求文档',
                 category: 'core',
-                date: '2026-01-31',
-                size: '4.7KB'
+                date: '2026-03-13 09:14:24',
+                size: '28KB',
+                timestamp: '2026-03-13 09:14:24'
             },
             { 
-                id: '知行中国_志愿者培训MVP_功能架构设计.md', 
-                title: '志愿者培训MVP功能架构设计',
-                description: '志愿者培训平台的三端架构设计，包含移动端、Web端、后台管理',
+                id: '家属照顾经验心得分享.md', 
+                title: '家属照顾经验心得分享',
+                description: '认知症患者家属的实际照顾经验分享，包含情感支持、日常护理、沟通技巧等',
+                category: 'analysis',
+                date: '2026-03-13 02:53:22',
+                size: '11KB',
+                timestamp: '2026-03-13 02:53:22'
+            },
+            { 
+                id: '认知障碍日常护理规范.md', 
+                title: '认知障碍日常护理规范',
+                description: '认知障碍患者的日常护理标准和操作规范，包含生活照料、安全防护、健康监测等',
                 category: 'tech',
-                date: '2026-03-12',
-                size: '8.7KB'
+                date: '2026-03-13 02:51:21',
+                size: '13KB',
+                timestamp: '2026-03-13 02:51:21'
             },
             { 
-                id: '志愿者培训师MVP产品设计_扩充版.md', 
-                title: '志愿者培训师MVP产品设计（扩充版）',
-                description: '基于互联网产品MVP最佳实践的完整产品设计，包含用户体验、增长策略、商业模式',
+                id: '认知障碍志愿者服务规范.md', 
+                title: '认知障碍志愿者服务规范',
+                description: '志愿者服务认知障碍患者的标准规范，包含服务流程、沟通技巧、安全注意事项等',
                 category: 'tech',
-                date: '2026-03-13',
-                size: '5.7KB'
+                date: '2026-03-13 02:49:01',
+                size: '9KB',
+                timestamp: '2026-03-13 02:49:01'
+            },
+            { 
+                id: '阿尔兹海默症专业知识手册.md', 
+                title: '阿尔兹海默症专业知识手册',
+                description: '阿尔兹海默症的医学专业知识手册，包含病因、症状、诊断、治疗等',
+                category: 'tech',
+                date: '2026-03-13 02:47:16',
+                size: '11KB',
+                timestamp: '2026-03-13 02:47:16'
+            },
+            { 
+                id: '认知障碍疾病知识库.md', 
+                title: '认知障碍疾病知识库',
+                description: '认知障碍疾病的完整知识库，包含阿尔兹海默症、血管性痴呆、路易体痴呆等类型',
+                category: 'tech',
+                date: '2026-03-13 02:45:13',
+                size: '8KB',
+                timestamp: '2026-03-13 02:45:13'
             },
             { 
                 id: 'MVP完整功能设计_游戏化社交版.md', 
                 title: 'MVP完整功能设计（游戏化社交版）',
                 description: '融合游戏化、积分兑换、社交网络、成长升级的完整功能设计，强化交互链路',
                 category: 'tech',
-                date: '2026-03-13',
-                size: '9.7KB'
+                date: '2026-03-13 02:36:05',
+                size: '20KB',
+                timestamp: '2026-03-13 02:36:05'
+            },
+            { 
+                id: '志愿者培训师MVP产品设计_扩充版.md', 
+                title: '志愿者培训师MVP产品设计（扩充版）',
+                description: '基于互联网产品MVP最佳实践的完整产品设计，包含用户体验、增长策略、商业模式',
+                category: 'tech',
+                date: '2026-03-13 01:13:56',
+                size: '11KB',
+                timestamp: '2026-03-13 01:13:56'
+            },
+            { 
+                id: '项目总览_README.md', 
+                title: '项目总览：知行中国脑健康志愿者培训平台',
+                description: '项目整体介绍、愿景、技术栈、里程碑、团队架构和预算规划',
+                category: 'core',
+                date: '2026-03-13 00:56:00',
+                size: '5KB',
+                timestamp: '2026-03-13 00:56:00'
+            },
+            { 
+                id: '知行中国_2026脑健康管理平台_分析报告.md', 
+                title: '2026脑健康管理平台分析报告',
+                description: '知行中国项目核心分析报告，包含市场分析、用户需求、商业模式等',
+                category: 'core',
+                date: '2026-03-12 19:20:14',
+                size: '2KB',
+                timestamp: '2026-03-12 19:20:14'
+            },
+            { 
+                id: '知行中国_2026脑健康管理平台_详细分析.md', 
+                title: '2026脑健康管理平台详细分析',
+                description: '项目详细分析，包含技术架构、运营模式、风险评估等',
+                category: 'core',
+                date: '2026-03-12 19:20:14',
+                size: '4KB',
+                timestamp: '2026-03-12 19:20:14'
+            },
+            { 
+                id: '知行中国_志愿者培训MVP_功能架构设计.md', 
+                title: '志愿者培训MVP功能架构设计',
+                description: '志愿者培训平台的三端架构设计，包含移动端、Web端、后台管理',
+                category: 'tech',
+                date: '2026-03-12 19:20:14',
+                size: '8KB',
+                timestamp: '2026-03-12 19:20:14'
             },
             { 
                 id: '知行中国_志愿者培训MVP_详细实施计划.md', 
                 title: '志愿者培训MVP详细实施计划',
                 description: '12周详细实施计划，包含团队分工、里程碑、预算规划',
                 category: 'plan',
-                date: '2026-03-12',
-                size: '8.9KB'
+                date: '2026-03-12 19:20:14',
+                size: '8KB',
+                timestamp: '2026-03-12 19:20:14'
             },
             { 
                 id: '知行中国_技能安装计划.md', 
                 title: '技能安装计划',
                 description: '项目开发所需技能和工具的安装配置计划',
                 category: 'tech',
-                date: '2026-03-12',
-                size: '5.1KB'
+                date: '2026-03-12 19:20:14',
+                size: '4KB',
+                timestamp: '2026-03-12 19:20:14'
             },
             { 
                 id: '知行中国_竞品分析与经验总结.md', 
                 title: '竞品分析与经验总结',
                 description: '同类项目成功失败经验分析，为项目决策提供参考',
                 category: 'analysis',
-                date: '2026-03-12',
-                size: '7.5KB'
+                date: '2026-03-12 19:20:14',
+                size: '7KB',
+                timestamp: '2026-03-12 19:20:14'
             },
             { 
                 id: '飞书互联网医疗解决方案_深度分析.md', 
                 title: '飞书互联网医疗解决方案深度分析',
                 description: '飞书互联网医疗解决方案的深度竞品分析报告',
                 category: 'analysis',
-                date: '2026-03-12',
-                size: '8.3KB'
+                date: '2026-03-12 19:20:14',
+                size: '8KB',
+                timestamp: '2026-03-12 19:20:14'
             }
         ];
+        
+        // 按时间倒序排序
+        documents.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
         
         // 渲染文档卡片
         function renderDocumentCards(filterCategory = 'all') {
@@ -287,7 +372,10 @@
                         <div>
                             <span class="${categoryClass} category-badge">${getCategoryName(doc.category)}</span>
                         </div>
-                        <div class="text-xs text-gray-500">${doc.date}</div>
+                        <div class="text-xs text-gray-500">
+                            <div class="font-medium">${doc.date.split(' ')[0]}</div>
+                            <div class="text-gray-400">${doc.date.split(' ')[1] || ''}</div>
+                        </div>
                     </div>
                     <h3 class="text-lg font-bold text-gray-800 mb-2">${doc.title}</h3>
                     <p class="text-gray-600 text-sm mb-4">${doc.description}</p>
