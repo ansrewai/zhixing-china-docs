@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>认证成功 - 知行中国志愿者学习端</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* 移动端适配 */
+        @media (max-width: 640px) {
+            .mobile-container {
+                max-width: 100%;
+                margin: 0 auto;
+            }
+        }
+        
+        /* 渐变背景 */
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .success-gradient {
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+        }
+        
+        /* 动画效果 */
+        @keyframes confetti {
+            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .float-animation {
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: #fbbf24;
+            animation: confetti 5s linear infinite;
+        }
+        
+        /* 证书样式 */
+        .certificate-border {
+            border: 8px solid transparent;
+            border-image: linear-gradient(45deg, #fbbf24, #f59e0b, #d97706) 1;
+        }
+        
+        /* 安全区域适配 */
+        .safe-area {
+            padding-top: env(safe-area-inset-top);
+            padding-bottom: env(safe-area-inset-bottom);
+            padding-left: env(safe-area-inset-left);
+            padding-right: env(safe-area-inset-right);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen safe-area">
+    <!-- 顶部导航 -->
+    <div class="gradient-bg text-white">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex justify-between items-center">
+                <button onclick="safeBack()" class="text-white">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                    </svg>
+                </button>
+                <h1 class="text-lg font-bold">认证成功</h1>
+                <a href="../index.html" class="text-white">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+                    </svg>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 主要内容 -->
+    <div class="container mx-auto px-4 py-6 mobile-container">
+        <!-- 庆祝动画区域 -->
+        <div class="relative overflow-hidden rounded-2xl success-gradient p-8 text-center mb-8">
+            <div id="confetti-container" class="absolute inset-0 pointer-events-none"></div>
+            
+            <div class="relative z-10">
+                <div class="text-6xl mb-4 float-animation">🎉</div>
+                <h1 class="text-2xl font-bold text-white mb-2">恭喜你！认证成功</h1>
+                <p class="text-white/90">你已成功通过"认知障碍基础照护"认证考试</p>
+            </div>
+        </div>
+
+        <!-- 证书展示 -->
+        <div class="bg-white rounded-2xl shadow-lg p-6 mb-8 certificate-border">
+            <div class="text-center mb-6">
+                <div class="text-4xl mb-2">🏆</div>
+                <h2 class="text-xl font-bold text-gray-800 mb-2">认知障碍照护志愿者认证证书</h2>
+                <p class="text-gray-600">初级认证 · 证书编号: ZXZG-2026-0321-001</p>
+            </div>
+            
+            <div class="space-y-4">
+                <div class="flex justify-between items-center p-4 bg-gray-50 rounded-lg">
+                    <div>
+                        <div class="text-sm text-gray-500">认证人</div>
+                        <div class="font-medium">张明</div>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-sm text-gray-500">认证日期</div>
+                        <div class="font-medium">2026-03-13</div>
+                    </div>
+                </div>
+                
+                <div class="p-4 bg-gray-50 rounded-lg">
+                    <div class="text-sm text-gray-500 mb-1">认证等级</div>
+                    <div class="flex items-center">
+                        <div class="text-lg font-bold text-blue-600 mr-2">初级志愿者</div>
+                        <span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">Level 1</span>
+                    </div>
+                </div>
+                
+                <div class="p-4 bg-gray-50 rounded-lg">
+                    <div class="text-sm text-gray-500 mb-1">认证成绩</div>
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <div class="text-2xl font-bold text-green-600">92分</div>
+                            <div class="text-sm text-gray-500">优秀 (90分以上)</div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-sm text-gray-500">考试用时</div>
+                            <div class="font-medium">45分钟</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="p-4 bg-gray-50 rounded-lg">
+                    <div class="text-sm text-gray-500 mb-2">认证技能</div>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="px-3 py-1 bg-green-100 text-green-800 text-sm rounded-full">基础沟通</span>
+                        <span class="px-3 py-1 bg-green-100 text-green-800 text-sm rounded-full">日常照护</span>
+                        <span class="px-3 py-1 bg-green-100 text-green-800 text-sm rounded-full">安全防护</span>
+                        <span class="px-3 py-1 bg-green-100 text-green-800 text-sm rounded-full">应急处理</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-6 pt-6 border-t border-gray-200">
+                <div class="text-sm text-gray-500 mb-2">证书验证</div>
+                <div class="flex items-center justify-between">
+                    <div class="text-sm">
+                        <div class="font-medium">区块链存证</div>
+                        <div class="text-gray-500 text-xs">哈希值: 0x8a3f...c2d7</div>
+                    </div>
+                    <button class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">
+                        验证证书
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 奖励获得 -->
+        <div class="bg-white rounded-2xl shadow-lg p-6 mb-8">
+            <h3 class="text-lg font-bold text-gray-800 mb-4">🎁 认证奖励</h3>
+            
+            <div class="grid grid-cols-2 gap-4">
+                <div class="p-4 bg-gradient-to-r from-yellow-50 to-orange-50 rounded-xl border border-yellow-200">
+                    <div class="flex items-center mb-2">
+                        <div class="text-2xl mr-2">⭐</div>
+                        <div class="font-bold text-gray-800">等级提升</div>
+                    </div>
+                    <div class="text-2xl font-bold text-yellow-600">+2级</div>
+                    <div class="text-sm text-gray-600">当前: Level 3</div>
+                </div>
+                
+                <div class="p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl border border-green-200">
+                    <div class="flex items-center mb-2">
+                        <div class="text-2xl mr-2">💰</div>
+                        <div class="font-bold text-gray-800">积分奖励</div>
+                    </div>
+                    <div class="text-2xl font-bold text-green-600">+500</div>
+                    <div class="text-sm text-gray-600">总积分: 1,250</div>
+                </div>
+                
+                <div class="p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl border border-purple-200">
+                    <div class="flex items-center mb-2">
+                        <div class="text-2xl mr-2">🏅</div>
+                        <div class="font-bold text-gray-800">专属徽章</div>
+                    </div>
+                    <div class="text-lg font-bold text-purple-600">初级照护师</div>
+                    <div class="text-sm text-gray-600">已解锁</div>
+                </div>
+                
+                <div class="p-4 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl border border-blue-200">
+                    <div class="flex items-center mb-2">
+                        <div class="text-2xl mr-2">🎯</div>
+                        <div class="font-bold text-gray-800">解锁权限</div>
+                    </div>
+                    <div class="text-sm font-medium text-blue-600">实践任务</div>
+                    <div class="text-sm text-gray-600">社区指导</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 下一步行动 -->
+        <div class="bg-white rounded-2xl shadow-lg p-6">
+            <h3 class="text-lg font-bold text-gray-800 mb-4">🚀 下一步行动</h3>
+            
+            <div class="space-y-4">
+                <a href="profile-achievements.html" class="block p-4 bg-gray-50 rounded-xl border border-gray-200 hover:bg-gray-100 transition-colors">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <div class="text-2xl mr-3">📊</div>
+                            <div>
+                                <div class="font-medium text-gray-800">查看成就系统</div>
+                                <div class="text-sm text-gray-600">查看所有徽章和成就</div>
+                            </div>
+                        </div>
+                        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                        </svg>
+                    </div>
+                </a>
+                
+                <a href="points-mall.html" class="block p-4 bg-gray-50 rounded-xl border border-gray-200 hover:bg-gray-100 transition-colors">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <div class="text-2xl mr-3">🛒</div>
+                            <div>
+                                <div class="font-medium text-gray-800">积分兑换商城</div>
+                                <div class="text-sm text-gray-600">使用积分兑换奖励</div>
+                            </div>
+                        </div>
+                        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                        </svg>
+                    </div>
+                </a>
+                
+                <a href="ai-coach.html" class="block p-4 bg-gray-50 rounded-xl border border-gray-200 hover:bg-gray-100 transition-colors">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <div class="text-2xl mr-3">🤖</div>
+                            <div>
+                                <div class="font-medium text-gray-800">AI教练指导</div>
+                                <div class="text-sm text-gray-600">获取个性化学习建议</div>
+                            </div>
+                        </div>
+                        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                        </svg>
+                    </div>
+                </a>
+                
+                <a href="practice-scenarios.html" class="block p-4 bg-gray-50 rounded-xl border border-gray-200 hover:bg-gray-100 transition-colors">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <div class="text-2xl mr-3">🎮</div>
+                            <div>
+                                <div class="font-medium text-gray-800">继续实践训练</div>
+                                <div class="text-sm text-gray-600">解锁更多实践场景</div>
+                            </div>
+                        </div>
+                        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                        </svg>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="mt-6 pt-6 border-t border-gray-200">
+                <div class="flex space-x-4">
+                    <button onclick="shareCertificate()" class="flex-1 px-4 py-3 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 transition-colors flex items-center justify-center">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"></path>
+                        </svg>
+                        分享成就
+                    </button>
+                    <a href="../index.html" class="flex-1 px-4 py-3 bg-gray-100 text-gray-800 rounded-xl font-medium hover:bg-gray-200 transition-colors text-center">
+                        返回首页
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 底部安全区域 -->
+    <div class="h-16 safe-area"></div>
+
+    <script>
+        // 创建彩色纸屑效果
+        function createConfetti() {
+            const container = document.getElementById('confetti-container');
+            const colors = ['#fbbf24', '#60a5fa', '#34d399', '#f472b6', '#a78bfa'];
+            
+            for (let i = 0; i < 50; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * 100 + '%';
+                confetti.style.top = '-20px';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.width = Math.random() * 10 + 5 + 'px';
+                confetti.style.height = Math.random() * 10 + 5 + 'px';
+                confetti.style.animationDelay = Math.random() * 5 + 's';
+                confetti.style.animationDuration = Math.random() * 3 + 3 + 's';
+                container.appendChild(confetti);
+            }
+        }
+        
+        // 安全的返回函数
+        function safeBack() {
+            // 检查是否有历史记录
+            if (window.history.length > 1) {
+                window.history.back();
+            } else {
+                // 如果没有历史记录，返回课程列表
+                window.location.href = 'course-list.html';
+            }
+        }
+        
+        // 分享证书功能
+        function shareCertificate() {
+            if (navigator.share) {
+                navigator.share({
+                    title: '我获得了认知障碍照护志愿者认证！',
+                    text: '我在知行中国平台成功通过认证考试，获得了初级志愿者证书！',
+                    url: window.location.href
+                })
+                .then(() => console.log('分享成功'))
+                .catch(error => console.log('分享失败:', error));
+            } else {
+                // 备用分享方式
+                const shareText = '我获得了认知障碍照护志愿者认证！在知行中国平台成功通过认证考试，获得了初级志愿者证书！';
+                navigator.clipboard.writeText(shareText)
+                    .then(() => {
+                        alert('分享内容已复制到剪贴板！');
+                    })
+                    .catch(err => {
+                        console.error('复制失败:', err);
+                    });
+            }
+        }
+        
+        // 页面加载时创建纸屑效果
+        document.addEventListener('DOMContentLoaded', function() {
+            createConfetti();
+            
+            // 添加庆祝音效（可选）
+            setTimeout(() => {
+                // 这里可以添加音效播放代码
+                console.log('认证成功！');
+            }, 500);
+        });
+    </script>
+</body>
+</html>
